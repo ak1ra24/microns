@@ -1,0 +1,40 @@
+nodes:
+  - name: R0
+    image: akiranet24/gobgp-frr:1.0
+    interfaces:
+        - name: net0
+          type: direct
+          ipv4: 192.168.100.10/24
+          ipv6: fc00:a::10/64
+          args: R1:net0
+        - name: net1
+          type: direct
+          ipv4: 192.168.150.10/24
+          ipv6: fc00:c::10/64
+          args: R2:net1
+  - name: R1
+    image: akiranet24/gobgp-frr:1.0
+    interfaces:
+        - name: net0
+          type: direct
+          ipv4: 192.168.100.11/24
+          ipv6: fc00:a::11/64
+          args: R0:net0
+        - name: net1
+          type: direct
+          ipv4: 192.168.200.11/24
+          ipv6: fc00:b::11/64
+          args: R2:net0
+  - name: R2
+    image: akiranet24/gobgp-frr:1.0
+    interfaces:
+        - name: net0
+          type: direct
+          ipv4: 192.168.200.12/24
+          ipv6: fc00:b::12/64
+          args: R1:net1
+        - name: net1
+          type: direct
+          ipv4: 192.168.150.12/24
+          ipv6: fc00:c::12/64
+          args: R0:net1
