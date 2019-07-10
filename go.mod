@@ -3,6 +3,7 @@ module github.com/ak1ra24/microns
 go 1.12
 
 require (
+	github.com/awalterschulze/gographviz v0.0.0-20190522210029-fa59802746ab
 	github.com/containernetworking/plugins v0.8.1
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1

@@ -19,66 +19,44 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ak1ra24/microns/api"
+	"github.com/ak1ra24/microns/api/graph"
 	"github.com/ak1ra24/microns/api/utils"
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
-	"golang.org/x/net/context"
 )
 
-// var configFile string
+var imgFile string
 
-// createCmd represents the create command
-var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "create docker container and ns topology",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("create called")
-
+// imageCmd represents the image command
+var imageCmd = &cobra.Command{
+	Use:   "image",
+	Short: "create network topology image file",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("image called")
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		fmt.Println(cfgFile)
-		ctx := context.Background()
-		cli, err := client.NewEnvClient()
-		if err != nil {
-			return err
-		}
-
 		nodes := utils.ParseYaml(cfgFile)
-
 		fmt.Println("----------------------------------------------")
-		fmt.Println("                   CREATE                     ")
+		fmt.Println("                   IMAGE                      ")
 		fmt.Println("----------------------------------------------")
-		api.Pull(ctx, cli, nodes)
-
-		for _, node := range nodes {
-			api.Dockertonetns(ctx, cli, node.Name)
-		}
-		for _, node := range nodes {
-			fmt.Println(node.Interface)
-			for _, inf := range node.Interface {
-				api.SetLink(node, inf)
-			}
-		}
-		fmt.Println("Success create microns!")
-		return nil
-
+		graph.Graph(nodes, imgFile)
+		graph.DottoPng(imgFile)
+		fmt.Println("Success create image file")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(imageCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
-	// rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "", "config file name")
+	// imageCmd.PersistentFlags().String("foo", "", "A help for foo")
+	rootCmd.PersistentFlags().StringVarP(&imgFile, "output", "o", "topo", "topology image (filename only)")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// imageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
