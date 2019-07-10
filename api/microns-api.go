@@ -33,6 +33,13 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 		}
 
 		var containerNames []string
+		sysctlconfs := make(map[string]string)
+
+		for _, sysctl := range node.Sysctls {
+			sysctlconf := strings.Split(sysctl.Sysctl, "=")
+			sysctlconfs[sysctlconf[0]] = sysctlconf[1]
+		}
+
 		if len(containers) != 0 {
 			for _, conainerr := range containers {
 				containerName := strings.Replace(conainerr.Names[0], "/", "", 1)
@@ -60,7 +67,7 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 					},
 					&container.HostConfig{
 						Privileged: true,
-						Sysctls:    map[string]string{"net.ipv4.ip_forward": "1", "net.ipv4.conf.all.rp_filter": "0", "net.ipv4.conf.lo.rp_filter": "0", "net.ipv6.conf.all.forwarding": "1", "net.ipv6.conf.all.seg6_enabled": "1", "net.ipv6.conf.default.seg6_enabled": "1"},
+						Sysctls:    sysctlconfs,
 						Binds:      []string{volume},
 					}, nil, node.Name)
 				if err != nil {
