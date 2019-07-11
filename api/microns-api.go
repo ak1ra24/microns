@@ -40,6 +40,11 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 			sysctlconfs[sysctlconf[0]] = sysctlconf[1]
 		}
 
+		var volume string
+		if node.Volume != "" {
+			volume = node.Volume
+		}
+
 		if len(containers) != 0 {
 			for _, conainerr := range containers {
 				containerName := strings.Replace(conainerr.Names[0], "/", "", 1)
@@ -56,10 +61,6 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 				}
 				io.Copy(os.Stdout, out)
 
-				var volume string
-				if node.Volume != "" {
-					volume = node.Volume
-				}
 				resp, err := cli.ContainerCreate(ctx,
 					&container.Config{
 						Image: imageName,
@@ -95,7 +96,8 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 				},
 				&container.HostConfig{
 					Privileged: true,
-					Sysctls:    map[string]string{"net.ipv4.ip_forward": "1", "net.ipv4.conf.all.rp_filter": "0", "net.ipv4.conf.lo.rp_filter": "0", "net.ipv6.conf.all.forwarding": "1", "net.ipv6.conf.all.seg6_enabled": "1", "net.ipv6.conf.default.seg6_enabled": "1"},
+					Sysctls:    sysctlconfs,
+					Binds:      []string{volume},
 				}, nil, node.Name)
 			if err != nil {
 				fmt.Printf("Failed to Create Container: %v\n", err)
@@ -111,7 +113,7 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 	}
 }
 
-func Dockertonetns(ctx context.Context, cli *client.Client, Name string) {
+func Dockertonetns(ctx context.Context, cli *client.Client, nodename string) {
 
 	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
@@ -125,7 +127,7 @@ func Dockertonetns(ctx context.Context, cli *client.Client, Name string) {
 
 	for _, container := range containers {
 		containerName = strings.Replace(container.Names[0], "/", "", 1)
-		if Name == containerName {
+		if nodename == containerName {
 			json, err := cli.ContainerInspect(ctx, container.ID)
 			if err != nil {
 				fmt.Printf("Failed to Inspect Container: %v\n", err)
