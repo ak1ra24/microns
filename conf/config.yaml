@@ -17,6 +17,7 @@ nodes:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
         - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
         - sysctl: net.ipv6.conf.all.forwarding=1
         - sysctl: net.ipv6.conf.all.seg6_enabled=1
         - sysctl: net.ipv6.conf.default.seg6_enabled=1
@@ -38,6 +39,8 @@ nodes:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
         - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
         - sysctl: net.ipv6.conf.all.forwarding=1
         - sysctl: net.ipv6.conf.all.seg6_enabled=1
         - sysctl: net.ipv6.conf.default.seg6_enabled=1
@@ -59,6 +62,8 @@ nodes:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
         - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
         - sysctl: net.ipv6.conf.all.forwarding=1
         - sysctl: net.ipv6.conf.all.seg6_enabled=1
         - sysctl: net.ipv6.conf.default.seg6_enabled=1

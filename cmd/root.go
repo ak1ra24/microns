@@ -26,6 +26,8 @@ import (
 )
 
 var cfgFile string
+var apion bool
+var shellon bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -71,6 +73,8 @@ func init() {
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.microns.yaml)")
 	// rootCmd.PersistentFlags().StringP("config", "f", "", "config file")
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file name")
+	rootCmd.PersistentFlags().BoolVarP(&apion, "api", "a", false, "use Docker api")
+	rootCmd.PersistentFlags().BoolVarP(&shellon, "shell", "s", false, "use shell")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

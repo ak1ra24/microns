@@ -21,6 +21,7 @@ import (
 
 	"github.com/ak1ra24/microns/api"
 	"github.com/ak1ra24/microns/api/utils"
+	"github.com/ak1ra24/microns/shell"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
@@ -51,20 +52,48 @@ var createCmd = &cobra.Command{
 		fmt.Println("----------------------------------------------")
 		fmt.Println("                   CREATE                     ")
 		fmt.Println("----------------------------------------------")
-		api.Pull(ctx, cli, nodes)
 
-		for _, node := range nodes {
-			api.Dockertonetns(ctx, cli, node.Name)
-		}
-		for _, node := range nodes {
-			fmt.Println(node.Interface)
-			for _, inf := range node.Interface {
-				api.SetLink(node, inf)
+		if apion {
+			api.Pull(ctx, cli, nodes)
+
+			for _, node := range nodes {
+				api.Dockertonetns(ctx, cli, node.Name)
+			}
+			for _, node := range nodes {
+				fmt.Println(node.Interface)
+				for _, inf := range node.Interface {
+					api.SetLink(node, inf)
+				}
+			}
+			fmt.Println("Success create microns!")
+			return nil
+		} else if shellon {
+			var addAddrv4cmd string
+			var addAddrv6cmd string
+			for _, node := range nodes {
+				runcmd := shell.RunContainer(node)
+				fmt.Println(runcmd)
+				getpidcmd := shell.GetContainerPid(node.Name)
+				fmt.Println(getpidcmd)
+				symlinkDo := shell.SymlinkNstoContainer(node.Name)
+				fmt.Println(symlinkDo)
+				for _, link := range node.Interface {
+					vethname, addlinkcmd := shell.LinkAdd(node, link)
+					fmt.Println(addlinkcmd)
+					setLinkNscmd := shell.LinkSetNs(vethname, node.Name)
+					fmt.Println(setLinkNscmd)
+					if link.Ipv4 != "" {
+						addAddrv4cmd = shell.AddrAddv4(node.Name, vethname, link)
+						fmt.Println(addAddrv4cmd)
+					}
+					if link.Ipv6 != "" {
+						addAddrv6cmd = shell.AddrAddv6(node.Name, vethname, link)
+						fmt.Println(addAddrv6cmd)
+					}
+				}
 			}
 		}
-		fmt.Println("Success create microns!")
 		return nil
-
 	},
 }
 

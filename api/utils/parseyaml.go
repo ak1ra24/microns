@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"io/ioutil"
 
 	yaml "gopkg.in/yaml.v2"
@@ -36,10 +35,10 @@ func ParseYaml(filepath string) []Node {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("----------------------------------------------")
-	fmt.Println("                   CONFIG                     ")
-	fmt.Println("----------------------------------------------")
-	fmt.Printf("%+v\n", string(buf))
+	// fmt.Println("----------------------------------------------")
+	// fmt.Println("                   CONFIG                     ")
+	// fmt.Println("----------------------------------------------")
+	// fmt.Printf("%+v\n", string(buf))
 
 	var nodes Data
 

@@ -21,6 +21,7 @@ import (
 
 	"github.com/ak1ra24/microns/api"
 	"github.com/ak1ra24/microns/api/utils"
+	"github.com/ak1ra24/microns/shell"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
@@ -51,10 +52,21 @@ var deleteCmd = &cobra.Command{
 		fmt.Println("                   DELETE                     ")
 		fmt.Println("----------------------------------------------")
 		// remove container and netns
-		for _, node := range nodes {
-			api.RemoveNs(ctx, cli, node.Name)
+		if apion {
+			for _, node := range nodes {
+				api.RemoveNs(ctx, cli, node.Name)
+			}
+			fmt.Println("Success Delete microns!")
+		} else if shellon {
+			// delete ns and container
+			for _, node := range nodes {
+				delNscmd := shell.NsDel(node.Name)
+				fmt.Println(delNscmd)
+				delDockercmd := shell.DockerDel(node.Name)
+				fmt.Println(delDockercmd)
+			}
+			fmt.Println("Success Delete microns!")
 		}
-		fmt.Println("Success Delete microns!")
 	},
 }
 
