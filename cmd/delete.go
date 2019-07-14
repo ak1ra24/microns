@@ -34,12 +34,12 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "delete docker container and ns topology",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("delete called")
+		// fmt.Println("delete called")
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		fmt.Println(cfgFile)
+		// fmt.Println(cfgFile)
 
 		ctx := context.Background()
 		cli, err := client.NewEnvClient()
@@ -48,16 +48,19 @@ var deleteCmd = &cobra.Command{
 		}
 
 		nodes := utils.ParseYaml(cfgFile)
-		fmt.Println("----------------------------------------------")
-		fmt.Println("                   DELETE                     ")
-		fmt.Println("----------------------------------------------")
 		// remove container and netns
 		if apion {
+			fmt.Println("----------------------------------------------")
+			fmt.Println("                   DELETE                     ")
+			fmt.Println("----------------------------------------------")
 			for _, node := range nodes {
 				api.RemoveNs(ctx, cli, node.Name)
 			}
 			fmt.Println("Success Delete microns!")
 		} else if shellon {
+			fmt.Println("echo '----------------------------------------------'")
+			fmt.Println("echo '                   DELETE                     '")
+			fmt.Println("echo '----------------------------------------------'")
 			// delete ns and container
 			for _, node := range nodes {
 				delNscmd := shell.NsDel(node.Name)
@@ -65,7 +68,7 @@ var deleteCmd = &cobra.Command{
 				delDockercmd := shell.DockerDel(node.Name)
 				fmt.Println(delDockercmd)
 			}
-			fmt.Println("Success Delete microns!")
+			fmt.Println("echo 'Success Delete microns!'")
 		}
 	},
 }

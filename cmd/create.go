@@ -34,13 +34,13 @@ var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "create docker container and ns topology",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("create called")
+		// fmt.Println("create called")
 
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		fmt.Println(cfgFile)
+		// fmt.Println(cfgFile)
 		ctx := context.Background()
 		cli, err := client.NewEnvClient()
 		if err != nil {
@@ -49,11 +49,10 @@ var createCmd = &cobra.Command{
 
 		nodes := utils.ParseYaml(cfgFile)
 
-		fmt.Println("----------------------------------------------")
-		fmt.Println("                   CREATE                     ")
-		fmt.Println("----------------------------------------------")
-
 		if apion {
+			fmt.Println("----------------------------------------------")
+			fmt.Println("                   CREATE                     ")
+			fmt.Println("----------------------------------------------")
 			api.Pull(ctx, cli, nodes)
 
 			for _, node := range nodes {
@@ -68,6 +67,9 @@ var createCmd = &cobra.Command{
 			fmt.Println("Success create microns!")
 			return nil
 		} else if shellon {
+			fmt.Println("echo '----------------------------------------------'")
+			fmt.Println("echo '                   CREATE                     '")
+			fmt.Println("echo '----------------------------------------------'")
 			var addAddrv4cmd string
 			var addAddrv6cmd string
 			for _, node := range nodes {
@@ -92,6 +94,8 @@ var createCmd = &cobra.Command{
 					}
 				}
 			}
+			fmt.Println("echo 'Success create microns!'")
+			return nil
 		}
 		return nil
 	},
