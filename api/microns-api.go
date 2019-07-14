@@ -40,10 +40,10 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 			sysctlconfs[sysctlconf[0]] = sysctlconf[1]
 		}
 
-		var volume string
-		if node.Volume != "" {
-			volume = node.Volume
-		}
+		// var volume string
+		// if len(node.Volumes) != 0 {
+		// 	volume = node.Volume
+		// }
 
 		if len(containers) != 0 {
 			for _, conainerr := range containers {
@@ -69,7 +69,7 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 					&container.HostConfig{
 						Privileged: true,
 						Sysctls:    sysctlconfs,
-						Binds:      []string{volume},
+						// Binds:      []string{volume},
 					}, nil, node.Name)
 				if err != nil {
 					fmt.Printf("Failed to Create Container: %v\n", err)
@@ -97,7 +97,7 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 				&container.HostConfig{
 					Privileged: true,
 					Sysctls:    sysctlconfs,
-					Binds:      []string{volume},
+					// Binds:      []string{volume},
 				}, nil, node.Name)
 			if err != nil {
 				fmt.Printf("Failed to Create Container: %v\n", err)
