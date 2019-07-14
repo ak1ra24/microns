@@ -93,6 +93,11 @@ var createCmd = &cobra.Command{
 						fmt.Println(addAddrv6cmd)
 					}
 				}
+
+				runcmds := shell.RunCmd(node)
+				for _, runcmd := range runcmds {
+					fmt.Println(runcmd)
+				}
 			}
 			fmt.Println("echo 'Success create microns!'")
 			return nil

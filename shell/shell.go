@@ -132,6 +132,17 @@ func AddrAddv6(nodename, vethname string, inf utils.InterFace) string {
 	return addAddrcmd
 }
 
+func RunCmd(node utils.Node) []string {
+
+	var runcmds []string
+	for _, cmd := range node.Cmds {
+		runcmd := fmt.Sprintf("docker exec %s %s", node.Name, cmd.Cmd)
+		runcmds = append(runcmds, runcmd)
+	}
+
+	return runcmds
+}
+
 func NsDel(nodename string) string {
 	delNscmd := fmt.Sprintf("ip netns delete %s", nodename)
 

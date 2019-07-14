@@ -14,6 +14,7 @@ type Node struct {
 	Name      string      `yaml:"name"`
 	Image     string      `yaml:"image"`
 	Interface []InterFace `yaml:"interfaces"`
+	Cmds      []Cmd       `yaml:"cmds"`
 	Volume    string      `yaml:"volume"`
 	Sysctls   []Sysctl    `yaml:"sysctls"`
 }
@@ -28,6 +29,10 @@ type InterFace struct {
 
 type Sysctl struct {
 	Sysctl string `yaml:"sysctl"`
+}
+
+type Cmd struct {
+	Cmd string `yaml:"cmd"`
 }
 
 func ParseYaml(filepath string) []Node {
