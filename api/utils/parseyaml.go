@@ -24,7 +24,7 @@ type InterFace struct {
 	Type string `yaml:"type"`
 	Ipv4 string `yaml:"ipv4"`
 	Ipv6 string `yaml:"ipv6"`
-	Args string `yaml:"args"`
+	Peer string `yaml:"peer"`
 }
 
 type Sysctl struct {

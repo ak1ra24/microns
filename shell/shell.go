@@ -3,7 +3,6 @@ package shell
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/ak1ra24/microns/api/utils"
 )
@@ -78,9 +77,8 @@ func SymlinkNstoContainer(nodename string) string {
 }
 
 func LinkAdd(node utils.Node, inf utils.InterFace) (string, string) {
-	nodelink := fmt.Sprintf("%s:%s", node.Name, inf.Name)
-	node1 := strings.Split(nodelink, ":")[0]
-	node2 := strings.Split(inf.Args, ":")[0]
+	node1 := node.Name
+	node2 := inf.Peer
 	vethname := node1 + "_to_" + node2
 	peername := node2 + "_to_" + node1
 
