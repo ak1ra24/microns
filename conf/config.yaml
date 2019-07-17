@@ -21,11 +21,11 @@ nodes:
             -c "router ospf"
             -c "network 192.168.100.0/24 area 0"
             -c "network 192.168.150.0/24 area 0"
-    volumes:
-        - hostvolume: "test"
-          containervolume: "/tmp/test"
-        - hostvolume: "test"
-          containervolume: "/tmp/test"
+    # volumes:
+    #     - hostvolume: "test"
+    #       containervolume: "/tmp/test"
+    #     - hostvolume: "test"
+    #       containervolume: "/tmp/test"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
