@@ -28,7 +28,7 @@ fi
 		}
 		if len(node.Volumes) != 0 {
 			for _, volume := range node.Volumes {
-				volumeconf := fmt.Sprintf(" -v %s", volume.Volume)
+				volumeconf := fmt.Sprintf(" -v %s:%s", volume.HostVolume, volume.ContainerVolume)
 				runcmd += volumeconf
 			}
 		}
@@ -38,7 +38,7 @@ fi
 		runcmd = fmt.Sprintf("docker run -td --rm --net=none --privileged --name %s --hostname %s", node.Name, node.Name)
 		if len(node.Volumes) != 0 {
 			for _, volume := range node.Volumes {
-				volumeconf := fmt.Sprintf(" -v %s", volume.Volume)
+				volumeconf := fmt.Sprintf(" -v %s:%s", volume.HostVolume, volume.ContainerVolume)
 				runcmd += volumeconf
 			}
 		}
@@ -77,10 +77,12 @@ func SymlinkNstoContainer(nodename string) string {
 }
 
 func LinkAdd(node utils.Node, inf utils.InterFace) (string, string) {
-	node1 := node.Name
-	node2 := inf.Peer
-	vethname := node1 + "_to_" + node2
-	peername := node2 + "_to_" + node1
+	// node1 := inf.InfName
+	// node2 := inf.PeerInf
+	// vethname := node1 + "_to_" + node2
+	// peername := node2 + "_to_" + node1
+	vethname := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
+	peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
 
 	check_link := `
 if ip link show %s > /dev/null 2>&1; then
@@ -92,7 +94,7 @@ else
 fi
 `
 
-	CheckandAddLinkcmd := fmt.Sprintf(check_link, vethname, vethname, node1, vethname, node1, vethname, vethname, peername)
+	CheckandAddLinkcmd := fmt.Sprintf(check_link, vethname, vethname, node.Name, vethname, node.Name, vethname, vethname, peername)
 
 	// addlinkcmd := fmt.Sprintf("ip link add %s type veth peer name %s", vethname, peername)
 

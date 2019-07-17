@@ -20,11 +20,12 @@ type Node struct {
 }
 
 type InterFace struct {
-	Name string `yaml:"name"`
-	Type string `yaml:"type"`
-	Ipv4 string `yaml:"ipv4"`
-	Ipv6 string `yaml:"ipv6"`
-	Peer string `yaml:"peer"`
+	InfName  string `yaml:"inf"`
+	Type     string `yaml:"type"`
+	Ipv4     string `yaml:"ipv4"`
+	Ipv6     string `yaml:"ipv6"`
+	PeerNode string `yaml:"peernode"`
+	PeerInf  string `yaml:"peerinf"`
 }
 
 type Sysctl struct {
@@ -36,7 +37,8 @@ type Cmd struct {
 }
 
 type Volume struct {
-	Volume string `yaml:"volume"`
+	HostVolume      string `yaml:"hostvolume"`
+	ContainerVolume string `yaml:"containervolume"`
 }
 
 func ParseYaml(filepath string) []Node {

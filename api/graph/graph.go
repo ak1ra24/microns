@@ -43,7 +43,7 @@ func Graph(nodes []utils.Node, filename string) {
 	for _, node := range nodes {
 		Nodes = append(Nodes, node.Name)
 		for _, inf := range node.Interface {
-			link := node.Name + "-" + inf.Name
+			link := node.Name + "-" + inf.InfName
 			fmt.Println(link)
 			Links = append(Links, link)
 		}

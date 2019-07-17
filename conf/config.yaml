@@ -2,16 +2,18 @@ nodes:
   - name: R0
     image: akiranet24/gobgp-frr:1.0
     interfaces:
-        - name: net0
+        - inf: net0
           type: direct
           ipv4: 192.168.100.10/24
           ipv6: fc00:a::10/64
-          peer: R1
-        - name: net1
+          peernode: R1
+          peerinf: net0
+        - inf: net1
           type: direct
           ipv4: 192.168.150.10/24
           ipv6: fc00:c::10/64
-          peer: R2
+          peernode: R2
+          peerinf: net1
     cmds:
         - cmd: /etc/init.d/frr start
         - cmd: >-
@@ -20,7 +22,10 @@ nodes:
             -c "network 192.168.100.0/24 area 0"
             -c "network 192.168.150.0/24 area 0"
     volumes:
-        - volume: "test:/tmp/test"
+        - hostvolume: "test"
+          containervolume: "/tmp/test"
+        - hostvolume: "test"
+          containervolume: "/tmp/test"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -32,16 +37,18 @@ nodes:
   - name: R1
     image: akiranet24/gobgp-frr:1.0
     interfaces:
-        - name: net0
+        - inf: net0
           type: direct
           ipv4: 192.168.100.11/24
           ipv6: fc00:a::11/64
-          peer: R0
-        - name: net1
+          peernode: R0
+          peerinf: net0
+        - inf: net1
           type: direct
           ipv4: 192.168.200.11/24
           ipv6: fc00:b::11/64
-          peer: R2
+          peernode: R2
+          peerinf: net0
     cmds:
         - cmd: /etc/init.d/frr start
         - cmd: >-
@@ -50,7 +57,8 @@ nodes:
             -c "network 192.168.100.0/24 area 0"
             -c "network 192.168.200.0/24 area 0"
     volumes:
-        - volume: "test:/tmp/test"
+        - hostvolume: "test"
+          containervolume: "/tmp/test"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -63,16 +71,18 @@ nodes:
   - name: R2
     image: akiranet24/gobgp-frr:1.0
     interfaces:
-        - name: net0
+        - inf: net0
           type: direct
           ipv4: 192.168.200.12/24
           ipv6: fc00:b::12/64
-          peer: R1
-        - name: net1
+          peernode: R1
+          peerinf: net1
+        - inf: net1
           type: direct
           ipv4: 192.168.150.12/24
           ipv6: fc00:c::12/64
-          peer: R0
+          peernode: R0
+          peerinf: net1
     cmds:
         - cmd: /etc/init.d/frr start
         - cmd: >-
@@ -81,7 +91,8 @@ nodes:
             -c "network 192.168.200.0/24 area 0"
             -c "network 192.168.150.0/24 area 0"
     volumes:
-        - volume: "test:/tmp/test"
+        - hostvolume: "test"
+          containervolume: "/tmp/test"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0

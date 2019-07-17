@@ -165,10 +165,13 @@ func Dockertonetns(ctx context.Context, cli *client.Client, nodename string) {
 
 // func SetLink(node1, node2, name, peername string) {
 func SetLink(node utils.Node, inf utils.InterFace) {
+	// node1 := node.Name
+	// node2 := inf.Peer
+	// name := node1 + "_to_" + node2
+	// peername := node2 + "_to_" + node1
 	node1 := node.Name
-	node2 := inf.Peer
-	name := node1 + "_to_" + node2
-	peername := node2 + "_to_" + node1
+	name := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
+	peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
 
 	veth := &netlink.Veth{
 		LinkAttrs: netlink.LinkAttrs{
