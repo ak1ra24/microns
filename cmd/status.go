@@ -50,7 +50,8 @@ var statusCmd = &cobra.Command{
 		fmt.Println("                   STATUS                     ")
 		fmt.Println("----------------------------------------------")
 		for _, node := range nodes {
-			api.StatusNs(ctx, cli, node.Name)
+			status := api.StatusNs(ctx, cli, node.Name)
+			fmt.Println(status)
 		}
 		return nil
 	},

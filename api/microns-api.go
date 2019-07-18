@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -17,6 +18,16 @@ import (
 	"github.com/vishvananda/netlink"
 	"golang.org/x/net/context"
 )
+
+type Status struct {
+	Name   string    `json:"name"`
+	Status Component `json:"status"`
+}
+
+type Component struct {
+	Ns        string `json:"ns"`
+	Container string `json:"container"`
+}
 
 func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 
@@ -296,29 +307,41 @@ func RemoveNs(ctx context.Context, cli *client.Client, nodename string) {
 	}
 }
 
-func StatusNs(ctx context.Context, cli *client.Client, nodename string) {
+func StatusNs(ctx context.Context, cli *client.Client, nodename string) string {
 	path := "/var/run/netns/"
 	nodepath := path + nodename
+	var status Status
 	if _, err := os.Stat(nodepath); os.IsNotExist(err) {
 		// path/to/whatever does not exist
-		fmt.Printf("NS:\t\t%s\t\tNot Found\n", nodename)
+		// fmt.Printf("NS:\t\t%s\t\tNot Found\n", nodename)
+		status.Name = nodename
+		status.Status.Ns = "Not Found"
 	} else {
-		fmt.Printf("NS:\t\t%s\t\tFound\n", nodename)
+		// fmt.Printf("NS:\t\t%s\t\tFound\n", nodename)
+		status.Name = nodename
+		status.Status.Ns = "Not Found"
 	}
 	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	if len(containers) == 0 {
-		fmt.Printf("Container:\t%s\t\tNot Found\n", nodename)
+		// fmt.Printf("Container:\t%s\t\tNot Found\n", nodename)
+		status.Status.Container = "Not Found"
 	} else {
 		for _, container := range containers {
 			containerName := strings.Replace(container.Names[0], "/", "", 1)
 			if nodename == containerName {
-				fmt.Printf("Container:\t%s\t\t%s\n", containerName, container.State)
+				// fmt.Printf("Container:\t%s\t\t%s\n", containerName, container.State)
+				status.Status.Container = container.State
 			}
 		}
 	}
+
+	jsonbyte, _ := json.Marshal(status)
+	jsonstring := string(jsonbyte)
+
+	return jsonstring
 }
 
 // func main() {
