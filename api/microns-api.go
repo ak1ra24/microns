@@ -319,7 +319,7 @@ func StatusNs(ctx context.Context, cli *client.Client, nodename string) string {
 	} else {
 		// fmt.Printf("NS:\t\t%s\t\tFound\n", nodename)
 		status.Name = nodename
-		status.Status.Ns = "Not Found"
+		status.Status.Ns = "Found"
 	}
 	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
