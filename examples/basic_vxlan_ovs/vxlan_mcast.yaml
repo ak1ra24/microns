@@ -1,0 +1,95 @@
+nodes:
+  - name: OVS0
+    image: akiranet24/openvswitch:16.04
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.1/30
+          peernode: OVS1
+          peerinf: net0
+        - inf: net1
+          type: direct
+          peernode: C0
+          peerinf: net0
+    cmds:
+        - cmd: /etc/init.d/openvswitch-switch start
+        - cmd: ip link add vxlan1 type vxlan id 1 group 239.0.1.1 ttl 10 dev OVS0-net0
+        - cmd: ip link set up vxlan1
+        - cmd: ovs-vsctl add-br ovs0
+        - cmd: ovs-vsctl add-port ovs0 OVS0-net1 tag=10
+        - cmd: ovs-vsctl add-port ovs0 vxlan1 tag=10
+    # volumes:
+    #     - hostvolume: "test"
+    #       containervolume: "/tmp/test"
+    #     - hostvolume: "test"
+    #       containervolume: "/tmp/test"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: OVS1
+    image: akiranet24/openvswitch:16.04
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.2/30
+          peernode: OVS0
+          peerinf: net0
+        - inf: net1
+          type: direct
+          peernode: C1
+          peerinf: net0
+    cmds:
+        - cmd: /etc/init.d/openvswitch-switch start
+        - cmd: ip link add vxlan1 type vxlan id 1 group 239.0.1.1 ttl 10 dev OVS1-net0
+        - cmd: ip link set up vxlan1
+        - cmd: ovs-vsctl add-br ovs0
+        - cmd: ovs-vsctl add-port ovs0 OVS1-net1 tag=10
+        - cmd: ovs-vsctl add-port ovs0 vxlan1 tag=10
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C0
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 192.168.0.1/24
+          peernode: OVS0
+          peerinf: net1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C1
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 192.168.0.2/24
+          peernode: OVS1
+          peerinf: net1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
