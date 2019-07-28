@@ -1,0 +1,200 @@
+nodes:
+  - name: R1
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv6: 2001:12::1/64
+          peernode: R2
+          peerinf: net0
+        - inf: net1
+          type: direct
+          ipv6: 2001:13::1/64
+          peernode: R3
+          peerinf: net0
+        - inf: net2
+          type: direct
+          ipv6: 2001:11::1/64
+          peernode: S1
+          peerinf: net0
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "router ospf6"
+            -c " ospf6 router-id 10.255.0.1"
+            -c " interface R1-net0 area 0.0.0.0"
+            -c " interface R1-net1 area 0.0.0.0"
+            -c " interface R1-net2 area 0.0.0.0"
+    # volumes:
+    #     - hostvolume: "test"
+    #       containervolume: "/tmp/test"
+    #     - hostvolume: "test"
+    #       containervolume: "/tmp/test"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R2
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv6: 2001:12::2/64
+          peernode: R1
+          peerinf: net0
+        - inf: net1
+          type: direct
+          ipv6: 2001:24::1/64
+          peernode: R4
+          peerinf: net0
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "router ospf6"
+            -c " ospf6 router-id 10.255.0.2"
+            -c " interface R2-net0 area 0.0.0.0"
+            -c " interface R2-net1 area 0.0.0.0"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R3
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv6: 2001:13::2/64
+          peernode: R1
+          peerinf: net1
+        - inf: net1
+          type: direct
+          ipv6: 2001:34::1/64
+          peernode: R4
+          peerinf: net1
+        - inf: net2
+          type: direct
+          ipv6: 2001:33::1/64
+          peernode: S3
+          peerinf: net0
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "router ospf6"
+            -c " ospf6 router-id 10.255.0.3"
+            -c " interface R3-net0 area 0.0.0.0"
+            -c " interface R3-net1 area 0.0.0.0"
+            -c " interface R3-net2 area 0.0.0.0"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R4
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv6: 2001:24::2/64
+          peernode: R2
+          peerinf: net1
+        - inf: net1
+          type: direct
+          ipv6: 2001:34::2/64
+          peernode: R3
+          peerinf: net1
+        - inf: net2
+          type: direct
+          ipv6: 2001:44::1/64
+          peernode: S4
+          peerinf: net0
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "router ospf6"
+            -c " ospf6 router-id 10.255.0.4"
+            -c " interface R4-net0 area 0.0.0.0"
+            -c " interface R4-net1 area 0.0.0.0"
+            -c " interface R4-net2 area 0.0.0.0"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: S1
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv6: 2001:11::2/64
+          peernode: R1
+          peerinf: net2
+    cmds:
+        - cmd: ip -6 route replace default via 2001:11::1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: S3
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv6: 2001:33::2/64
+          peernode: R3
+          peerinf: net2
+    cmds:
+        - cmd: ip -6 route replace default via 2001:33::1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: S4
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv6: 2001:44::2/64
+          peernode: R4
+          peerinf: net2
+    cmds:
+        - cmd: ip -6 route replace default via 2001:44::1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
