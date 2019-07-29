@@ -24,9 +24,9 @@ func Graph(nodes []utils.Node, filename string) {
 		panic(err)
 	}
 
-	if err := g.AddAttr("G", "layout", "neato"); err != nil {
-		panic(err)
-	}
+	// if err := g.AddAttr("G", "layout", "neato"); err != nil {
+	// 	panic(err)
+	// }
 
 	// node setting
 	nodeAttrs := make(map[string]string)
@@ -40,16 +40,28 @@ func Graph(nodes []utils.Node, filename string) {
 
 	var Nodes []string
 	var Links []string
+	Link := make(map[string]string)
+	Addrv4 := make(map[string]string)
+	Addrv6 := make(map[string]string)
 	for _, node := range nodes {
 		Nodes = append(Nodes, node.Name)
 		for _, inf := range node.Interface {
 			link := node.Name + "-" + inf.InfName
-			fmt.Println(link)
+			peer := inf.PeerNode + "-" + inf.PeerInf
+			if len(inf.Ipv4) != 0 && len(inf.Ipv6) != 0 {
+				Addrv4[link] = fmt.Sprintf("%s", inf.Ipv4)
+				Addrv6[link] = fmt.Sprintf("%s", inf.Ipv6)
+			} else if len(inf.Ipv4) != 0 && len(inf.Ipv6) == 0 {
+				Addrv4[link] = fmt.Sprintf("%s", inf.Ipv4)
+			} else if len(inf.Ipv4) == 0 && len(inf.Ipv6) != 0 {
+				Addrv6[link] = fmt.Sprintf("%s", inf.Ipv6)
+			}
+			// fmt.Println(link)
+			// fmt.Println(peer)
+			Link[link] = peer
 			Links = append(Links, link)
 		}
 	}
-	fmt.Println(Nodes)
-	fmt.Println(Links)
 
 	for _, Node := range Nodes {
 		if err := g.AddNode("G", Node, nodeAttrs); err != nil {
@@ -58,21 +70,43 @@ func Graph(nodes []utils.Node, filename string) {
 	}
 
 	edgeAttrs := make(map[string]string)
-	edgeAttrs["color"] = "white"
+	// edgeAttrs["color"] = "white"
 
 	// Edge(Node関係の関係)追加
 	// src(第1引数)からdst(第2引数)へ方向を付ける
-	for _, Link := range Links {
-		edge := strings.Split(Link, "-")
-		edge1 := edge[0]
-		edge2 := edge[1]
+	for _, linkinfo := range Links {
+		edge11 := strings.Split(linkinfo, "-")
+		edge22 := strings.Split(Link[linkinfo], "-")
+		edge1 := edge11[0]
+		edge2 := edge22[0]
+
+		var addrv4info, addrv6info string
+		var addrv4, addrv6 []string
+		if len(Addrv4[linkinfo]) != 0 && len(Addrv6[linkinfo]) != 0 {
+			addrv4 = strings.Split(Addrv4[linkinfo], "-")
+			addrv4info = addrv4[0]
+			addrv6 = strings.Split(Addrv6[linkinfo], "-")
+			addrv6info = addrv6[0]
+			edgeAttrs["label"] = fmt.Sprintf("\"%s-%s, IPv4: %s, IPv6: %s\"", edge11[1], edge22[1], addrv4info, addrv6info)
+		} else if len(Addrv4[linkinfo]) != 0 && len(Addrv6[linkinfo]) == 0 {
+			addrv4 = strings.Split(Addrv4[linkinfo], "-")
+			addrv4info = addrv4[0]
+			edgeAttrs["label"] = fmt.Sprintf("\"%s-%s, IPv4: %s\"", edge11[1], edge22[1], addrv4info)
+		} else if len(Addrv4[linkinfo]) == 0 && len(Addrv6[linkinfo]) != 0 {
+			addrv6 = strings.Split(Addrv6[linkinfo], "-")
+			addrv6info = addrv6[0]
+			edgeAttrs["label"] = fmt.Sprintf("\"%s-%s, IPv6: %s\"", edge11[1], edge22[1], addrv6info)
+		}
+
 		if err := g.AddEdge(edge1, edge2, true, edgeAttrs); err != nil {
 			panic(err)
 		}
+		delete(edgeAttrs, "label")
 	}
 
 	// dotファイル出力
 	s := g.String()
+	fmt.Println(s)
 	dotfile := filename + ".dot"
 	file, err := os.Create(dotfile)
 	if err != nil {
@@ -89,9 +123,9 @@ func DottoPng(filename string) {
 	if err != nil {
 		panic(err)
 	}
-	if err := os.Remove(dotfile); err != nil {
-		panic(err)
-	}
+	// if err := os.Remove(dotfile); err != nil {
+	// 	panic(err)
+	// }
 }
 
 func main() {

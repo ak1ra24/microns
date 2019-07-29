@@ -5,6 +5,22 @@ Dockerを用いたルーティングシュミレーション
 * Go
     * export GO111MODULE=on
 
+Ubuntu18.04
+* Go Install
+```
+sudo add-apt-repository ppa:longsleep/golang-backports -y
+sudo apt update
+sudo apt install golang-go
+```
+
+* Graphviz & ascii graph for microns image
+```
+sudo add-apt-repository universe -y
+sudo apt update
+sudo apt install graphviz cpanminus -y
+sudo cpanm Graph::Easy
+```
+
 ## Usage
 1. セットアップ
 ```
@@ -78,4 +94,19 @@ sudo ./microns status -c examples/basic_ebgp/config.yaml
 {"name":"R3","status":{"ns":"Found","container":"running"}}
 {"name":"C0","status":{"ns":"Found","container":"running"}}
 {"name":"C1","status":{"ns":"Found","container":"running"}}
+```
+
+## トポロジー図を画像で保存
+`-o` で画像のファイル名およびdotファイル名で出力
+
+For Example `-o ebgp => ebgp.dot, ebgp.png`
+
+```
+./microns image -c examples/basic_ebgp/config.yaml -o ebgp
+```
+
+## トポロジー図をascii graphで表示
+```
+./microns image -c examples/basic_ebgp/config.yaml -o ebgp
+cat ebgp.dot | graph-easy --from=dot --as_ascii
 ```
