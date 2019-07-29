@@ -67,11 +67,12 @@ func SymlinkNstoContainer(nodename string) string {
 	}
 
 	var symlinkcmd string
-	if _, err := os.Stat(netns); os.IsNotExist(err) {
-		symlinkcmd = fmt.Sprintf("ln -s /proc/$PID/ns/net %s", netns)
-	} else {
-		symlinkcmd = fmt.Sprintf("echo %s is Exist", netns)
-	}
+	symlinkcmd = fmt.Sprintf("ln -s /proc/$PID/ns/net %s", netns)
+	// if _, err := os.Stat(netns); os.IsNotExist(err) {
+	// 	symlinkcmd = fmt.Sprintf("ln -s /proc/$PID/ns/net %s", netns)
+	// } else {
+	// 	symlinkcmd = fmt.Sprintf("echo %s is Exist", netns)
+	// }
 
 	return symlinkcmd
 }
