@@ -1,0 +1,260 @@
+nodes:
+  - name: R1
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.1/30
+          peernode: R2
+          peerinf: net0
+        - inf: net1
+          type: direct
+          ipv4: 10.0.0.9/30
+          peernode: R4
+          peerinf: net0
+    cmds:
+        - cmd: modprobe mpls_router
+        - cmd: modprobe mpls_gso
+        - cmd: modprobe mpls_iptunnel
+        - cmd: sysctl -w net.mpls.conf.lo.input=1
+        - cmd: sysctl -w net.mpls.conf.R1-net0.input=1
+        - cmd: sysctl -w net.mpls.conf.R1-net1.input=1
+        - cmd: sysctl -w net.mpls.platform_labels=1048575
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c 'interface lo'
+            -c ' ip address 10.255.0.1/32'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R1-net0'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R1-net1'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'router ospf'
+            -c ' ospf router-id 10.255.0.1'
+            -c ' router-info area 0.0.0.0'
+            -c ' passive-interface lo'
+            -c ' capability opaque'
+            -c ' mpls-te on'
+            -c ' mpls-te router-address 10.255.0.1'
+            -c ' segment-routing on'
+            -c ' segment-routing global-block 16000 19999'
+            -c ' segment-routing node-msd 8'
+            -c ' segment-routing prefix 10.255.0.1/32 index 1001'
+            -c 'exit'
+        - cmd: ip route add 10.255.0.3/32 encap mpls 17004/17003 via 10.0.0.2
+    volumes:
+        - hostvolume: "/dev"
+          containervolume: "/dev"
+        - hostvolume: "/lib/modules"
+          containervolume: "/lib/modules"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R2
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.2/30
+          peernode: R1
+          peerinf: net0
+        - inf: net1
+          type: direct
+          ipv4: 10.0.0.5/30
+          peernode: R3
+          peerinf: net0
+        - inf: net2
+          type: direct
+          ipv4: 10.0.0.13/30
+          peernode: R4
+          peerinf: net2
+    cmds:
+        - cmd: modprobe mpls_router
+        - cmd: modprobe mpls_gso
+        - cmd: modprobe mpls_iptunnel
+        - cmd: sysctl -w net.mpls.conf.lo.input=1
+        - cmd: sysctl -w net.mpls.conf.R2-net0.input=1
+        - cmd: sysctl -w net.mpls.conf.R2-net1.input=1
+        - cmd: sysctl -w net.mpls.conf.R2-net2.input=1
+        - cmd: sysctl -w net.mpls.platform_labels=1048575
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c 'interface lo'
+            -c ' ip address 10.255.0.2/32'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R2-net0'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R2-net1'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R2-net2'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'router ospf'
+            -c ' ospf router-id 10.255.0.2'
+            -c ' router-info area 0.0.0.0'
+            -c ' passive-interface lo'
+            -c ' capability opaque'
+            -c ' mpls-te on'
+            -c ' mpls-te router-address 10.255.0.2'
+            -c ' segment-routing on'
+            -c ' segment-routing global-block 16000 19999'
+            -c ' segment-routing node-msd 8'
+            -c ' segment-routing prefix 10.255.0.2/32 index 1002'
+            -c 'exit'
+    volumes:
+        - hostvolume: "/dev"
+          containervolume: "/dev"
+        - hostvolume: "/lib/modules"
+          containervolume: "/lib/modules"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R3
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.6/30
+          peernode: R2
+          peerinf: net1
+        - inf: net1
+          type: direct
+          ipv4: 10.0.0.17/30
+          peernode: R4
+          peerinf: net1
+    cmds:
+        - cmd: modprobe mpls_router
+        - cmd: modprobe mpls_gso
+        - cmd: modprobe mpls_iptunnel
+        - cmd: sysctl -w net.mpls.conf.lo.input=1
+        - cmd: sysctl -w net.mpls.conf.R3-net0.input=1
+        - cmd: sysctl -w net.mpls.conf.R3-net1.input=1
+        - cmd: sysctl -w net.mpls.platform_labels=1048575
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c 'interface lo'
+            -c ' ip address 10.255.0.3/32'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R3-net0'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R3-net1'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'router ospf'
+            -c ' ospf router-id 10.255.0.3'
+            -c ' router-info area 0.0.0.0'
+            -c ' passive-interface lo'
+            -c ' capability opaque'
+            -c ' mpls-te on'
+            -c ' mpls-te router-address 10.255.0.3'
+            -c ' segment-routing on'
+            -c ' segment-routing global-block 16000 19999'
+            -c ' segment-routing node-msd 8'
+            -c ' segment-routing prefix 10.255.0.3/32 index 1003'
+            -c 'exit'
+        - cmd: ip route add 10.255.0.1/32 encap mpls 17002/17001 via 10.0.0.18
+    volumes:
+        - hostvolume: "/dev"
+          containervolume: "/dev"
+        - hostvolume: "/lib/modules"
+          containervolume: "/lib/modules"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R4
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.10/30
+          peernode: R1
+          peerinf: net1
+        - inf: net1
+          type: direct
+          ipv4: 10.0.0.18/30
+          peernode: R3
+          peerinf: net1
+        - inf: net2
+          type: direct
+          ipv4: 10.0.0.14/30
+          peernode: R2
+          peerinf: net2
+    cmds:
+        - cmd: modprobe mpls_router
+        - cmd: modprobe mpls_gso
+        - cmd: modprobe mpls_iptunnel
+        - cmd: sysctl -w net.mpls.conf.lo.input=1
+        - cmd: sysctl -w net.mpls.conf.R4-net0.input=1
+        - cmd: sysctl -w net.mpls.conf.R4-net1.input=1
+        - cmd: sysctl -w net.mpls.conf.R4-net2.input=1
+        - cmd: sysctl -w net.mpls.platform_labels=1048575
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c 'interface lo'
+            -c ' ip address 10.255.0.4/32'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R4-net0'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R4-net1'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'interface R4-net2'
+            -c ' ip ospf area 0.0.0.0'
+            -c 'exit'
+            -c 'router ospf'
+            -c ' ospf router-id 10.255.0.4'
+            -c ' router-info area 0.0.0.0'
+            -c ' passive-interface lo'
+            -c ' capability opaque'
+            -c ' mpls-te on'
+            -c ' mpls-te router-address 10.255.0.4'
+            -c ' segment-routing on'
+            -c ' segment-routing global-block 16000 19999'
+            -c ' segment-routing node-msd 8'
+            -c ' segment-routing prefix 10.255.0.4/32 index 1004'
+            -c 'exit'
+    volumes:
+        - hostvolume: "/dev"
+          containervolume: "/dev"
+        - hostvolume: "/lib/modules"
+          containervolume: "/lib/modules"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
