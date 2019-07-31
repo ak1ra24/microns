@@ -79,6 +79,8 @@ var createCmd = &cobra.Command{
 				fmt.Println(getpidcmd)
 				symlinkDo := shell.SymlinkNstoContainer(node.Name)
 				fmt.Println(symlinkDo)
+			}
+			for _, node := range nodes {
 				for _, link := range node.Interface {
 					vethname, addlinkcmd := shell.LinkAdd(node, link)
 					fmt.Println(addlinkcmd)

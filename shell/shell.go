@@ -82,20 +82,23 @@ func LinkAdd(node utils.Node, inf utils.InterFace) (string, string) {
 	// node2 := inf.PeerInf
 	// vethname := node1 + "_to_" + node2
 	// peername := node2 + "_to_" + node1
-	vethname := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
-	peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
+	// vethname := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
+	// peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
+	vethname := fmt.Sprintf("%s", inf.InfName)
+	peername := fmt.Sprintf("%s", inf.PeerInf)
 
-	check_link := `
-if ip link show %s > /dev/null 2>&1; then
-	echo %s is Exist 
-elif ip netns exec %s ip link show %s > /dev/null 2>&1; then
-	echo netns:%s link:%s is Exist 
-else
-	ip link add %s type veth peer name %s
-fi
-`
-
-	CheckandAddLinkcmd := fmt.Sprintf(check_link, vethname, vethname, node.Name, vethname, node.Name, vethname, vethname, peername)
+	// 	check_link := `
+	// if ip link show %s > /dev/null 2>&1; then
+	// 	echo %s is Exist
+	// elif ip netns exec %s ip link show %s > /dev/null 2>&1; then
+	// 	echo netns:%s link:%s is Exist
+	// else
+	// 	ip link add %s netns %s type veth peer name %s netns %s
+	// fi
+	// `
+	// CheckandAddLinkcmd := fmt.Sprintf(check_link, vethname, vethname, node.Name, vethname, node.Name, vethname, vethname, node.Name, peername, inf.PeerNode)
+	check_link := "ip link add %s netns %s type veth peer name %s netns %s"
+	CheckandAddLinkcmd := fmt.Sprintf(check_link, vethname, node.Name, peername, inf.PeerNode)
 
 	// addlinkcmd := fmt.Sprintf("ip link add %s type veth peer name %s", vethname, peername)
 
@@ -103,15 +106,17 @@ fi
 }
 
 func LinkSetNs(vethname, nodename string) string {
-	check_set_link := `
-if ip netns exec %s ip link show %s > /dev/null 2>&1; then
-	echo Already Set netns:%s link:%s is Exist 
-else
-	ip link set %s netns %s up
-fi
-`
+	// 	check_set_link := `
+	// if ip netns exec %s ip link show %s > /dev/null 2>&1; then
+	// 	echo Already Set netns:%s link:%s is Exist
+	// else
+	// 	ip link set %s netns %s up
+	// fi
+	// `
+	// setLinkNscmd := fmt.Sprintf(check_set_link, nodename, vethname, nodename, vethname, vethname, nodename)
+	check_set_link := "ip netns exec %s ip link set %s up"
 	// setLinkNscmd := fmt.Sprintf("ip link set %s netns %s up", vethname, nodename)
-	setLinkNscmd := fmt.Sprintf(check_set_link, nodename, vethname, nodename, vethname, vethname, nodename)
+	setLinkNscmd := fmt.Sprintf(check_set_link, nodename, vethname)
 
 	return setLinkNscmd
 }
