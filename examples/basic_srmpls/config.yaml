@@ -17,8 +17,8 @@ nodes:
         - cmd: modprobe mpls_gso
         - cmd: modprobe mpls_iptunnel
         - cmd: sysctl -w net.mpls.conf.lo.input=1
-        - cmd: sysctl -w net.mpls.conf.R1-net0.input=1
-        - cmd: sysctl -w net.mpls.conf.R1-net1.input=1
+        - cmd: sysctl -w net.mpls.conf.net0.input=1
+        - cmd: sysctl -w net.mpls.conf.net1.input=1
         - cmd: sysctl -w net.mpls.platform_labels=1048575
         - cmd: /etc/init.d/frr start
         - cmd: >-
@@ -27,10 +27,10 @@ nodes:
             -c ' ip address 10.255.0.1/32'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R1-net0'
+            -c 'interface net0'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R1-net1'
+            -c 'interface net1'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
             -c 'router ospf'
@@ -82,9 +82,9 @@ nodes:
         - cmd: modprobe mpls_gso
         - cmd: modprobe mpls_iptunnel
         - cmd: sysctl -w net.mpls.conf.lo.input=1
-        - cmd: sysctl -w net.mpls.conf.R2-net0.input=1
-        - cmd: sysctl -w net.mpls.conf.R2-net1.input=1
-        - cmd: sysctl -w net.mpls.conf.R2-net2.input=1
+        - cmd: sysctl -w net.mpls.conf.net0.input=1
+        - cmd: sysctl -w net.mpls.conf.net1.input=1
+        - cmd: sysctl -w net.mpls.conf.net2.input=1
         - cmd: sysctl -w net.mpls.platform_labels=1048575
         - cmd: /etc/init.d/frr start
         - cmd: >-
@@ -93,13 +93,13 @@ nodes:
             -c ' ip address 10.255.0.2/32'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R2-net0'
+            -c 'interface net0'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R2-net1'
+            -c 'interface net1'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R2-net2'
+            -c 'interface net2'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
             -c 'router ospf'
@@ -146,8 +146,8 @@ nodes:
         - cmd: modprobe mpls_gso
         - cmd: modprobe mpls_iptunnel
         - cmd: sysctl -w net.mpls.conf.lo.input=1
-        - cmd: sysctl -w net.mpls.conf.R3-net0.input=1
-        - cmd: sysctl -w net.mpls.conf.R3-net1.input=1
+        - cmd: sysctl -w net.mpls.conf.net0.input=1
+        - cmd: sysctl -w net.mpls.conf.net1.input=1
         - cmd: sysctl -w net.mpls.platform_labels=1048575
         - cmd: /etc/init.d/frr start
         - cmd: >-
@@ -156,10 +156,10 @@ nodes:
             -c ' ip address 10.255.0.3/32'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R3-net0'
+            -c 'interface net0'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R3-net1'
+            -c 'interface net1'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
             -c 'router ospf'
@@ -212,9 +212,9 @@ nodes:
         - cmd: modprobe mpls_gso
         - cmd: modprobe mpls_iptunnel
         - cmd: sysctl -w net.mpls.conf.lo.input=1
-        - cmd: sysctl -w net.mpls.conf.R4-net0.input=1
-        - cmd: sysctl -w net.mpls.conf.R4-net1.input=1
-        - cmd: sysctl -w net.mpls.conf.R4-net2.input=1
+        - cmd: sysctl -w net.mpls.conf.net0.input=1
+        - cmd: sysctl -w net.mpls.conf.net1.input=1
+        - cmd: sysctl -w net.mpls.conf.net2.input=1
         - cmd: sysctl -w net.mpls.platform_labels=1048575
         - cmd: /etc/init.d/frr start
         - cmd: >-
@@ -223,13 +223,13 @@ nodes:
             -c ' ip address 10.255.0.4/32'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R4-net0'
+            -c 'interface net0'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R4-net1'
+            -c 'interface net1'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
-            -c 'interface R4-net2'
+            -c 'interface net2'
             -c ' ip ospf area 0.0.0.0'
             -c 'exit'
             -c 'router ospf'

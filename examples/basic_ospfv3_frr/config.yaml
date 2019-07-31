@@ -23,9 +23,9 @@ nodes:
             vtysh -c "conf t"
             -c "router ospf6"
             -c " ospf6 router-id 10.255.0.1"
-            -c " interface R1-net0 area 0.0.0.0"
-            -c " interface R1-net1 area 0.0.0.0"
-            -c " interface R1-net2 area 0.0.0.0"
+            -c " interface net0 area 0.0.0.0"
+            -c " interface net1 area 0.0.0.0"
+            -c " interface net2 area 0.0.0.0"
     # volumes:
     #     - hostvolume: "test"
     #       containervolume: "/tmp/test"
@@ -58,8 +58,8 @@ nodes:
             vtysh -c "conf t"
             -c "router ospf6"
             -c " ospf6 router-id 10.255.0.2"
-            -c " interface R2-net0 area 0.0.0.0"
-            -c " interface R2-net1 area 0.0.0.0"
+            -c " interface net0 area 0.0.0.0"
+            -c " interface net1 area 0.0.0.0"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -93,9 +93,9 @@ nodes:
             vtysh -c "conf t"
             -c "router ospf6"
             -c " ospf6 router-id 10.255.0.3"
-            -c " interface R3-net0 area 0.0.0.0"
-            -c " interface R3-net1 area 0.0.0.0"
-            -c " interface R3-net2 area 0.0.0.0"
+            -c " interface net0 area 0.0.0.0"
+            -c " interface net1 area 0.0.0.0"
+            -c " interface net2 area 0.0.0.0"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -129,9 +129,9 @@ nodes:
             vtysh -c "conf t"
             -c "router ospf6"
             -c " ospf6 router-id 10.255.0.4"
-            -c " interface R4-net0 area 0.0.0.0"
-            -c " interface R4-net1 area 0.0.0.0"
-            -c " interface R4-net2 area 0.0.0.0"
+            -c " interface net0 area 0.0.0.0"
+            -c " interface net1 area 0.0.0.0"
+            -c " interface net2 area 0.0.0.0"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
