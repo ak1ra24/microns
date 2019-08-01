@@ -42,10 +42,18 @@ var testCmd = &cobra.Command{
 		fmt.Println("echo '                   test                       '")
 		fmt.Println("echo '----------------------------------------------'")
 
+		var runtestcmds []string
 		for _, test := range tests {
-			runtestcmds := shell.RunTestCmd(test)
-			for _, runtestcmd := range runtestcmds {
-				fmt.Println(runtestcmd)
+			if len(args) == 0 {
+				runtestcmds = shell.RunTestCmd(test)
+				for _, runtestcmd := range runtestcmds {
+					fmt.Println(runtestcmd)
+				}
+			} else if test.Name == args[0] {
+				runtestcmds = shell.RunTestCmd(test)
+				for _, runtestcmd := range runtestcmds {
+					fmt.Println(runtestcmd)
+				}
 			}
 		}
 		fmt.Println("echo 'Success test microns!'")

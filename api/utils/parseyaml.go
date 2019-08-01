@@ -2,6 +2,7 @@ package utils
 
 import (
 	"io/ioutil"
+	"os"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -32,7 +33,8 @@ type Tests struct {
 }
 
 type TestCmd struct {
-	Cmds []Cmd `yaml:"cmds"`
+	Name string `yaml:"name"`
+	Cmds []Cmd  `yaml:"cmds"`
 }
 
 type InterFace struct {
@@ -102,4 +104,40 @@ func ParseTest(filepath string) []TestCmd {
 	}
 
 	return tests.Testcmds
+}
+
+func CreateCfgFile(filename string) string {
+	conf := `
+nodes:
+  - name: 
+    image: 
+    interfaces:
+        - inf: 
+          type: 
+          ipv4: 
+          ipv6:
+          peernode: 
+          peerinf: 
+    volumes:
+        - hostvolume: 
+          containervolume: 
+    sysctls:
+        - sysctl:
+node_config:
+  - name: 
+    cmds:
+        - cmd: 
+test:
+  - cmds:
+        - cmd: 
+`
+	fp, err := os.Create(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer fp.Close()
+
+	fp.WriteString(conf)
+
+	return conf
 }

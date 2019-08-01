@@ -177,6 +177,8 @@ func DockerDel(nodename string) string {
 func RunTestCmd(testcmds utils.TestCmd) []string {
 
 	var runtestcmds []string
+	echoname := fmt.Sprintf("echo '%s'", testcmds.Name)
+	runtestcmds = append(runtestcmds, echoname)
 	for _, testcmd := range testcmds.Cmds {
 		runtestcmds = append(runtestcmds, testcmd.Cmd)
 	}
