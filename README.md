@@ -47,12 +47,15 @@ Usage:
   microns [flags]
   microns [command]
 
-Available Commands: 
+Available Commands:
   create      create docker container and ns topology
   delete      delete docker container and ns topology
   help        Help about any command
   image       create network topology image file
+  init        A brief description of your command
+  recreate    reconfigure router
   status      status docker container and ns topology
+  test        Execute test from config
 
 Flags:
   -a, --api             use Docker api
@@ -74,11 +77,39 @@ sudo ./microns create -s -c examples/basic_ebgp/config.yaml | sudo sh
 sudo ./microns -a -c examples/basic_ebgp/config.yaml
 ```
 
+## configファイルのテンプレートを作成
+```
+sudo ./microns init -c test.yaml
+
+nodes:
+  - name:
+    image:
+    interfaces:
+        - inf:
+          type:
+          ipv4:
+          ipv6:
+          peernode:
+          peerinf:
+    volumes:
+        - hostvolume:
+          containervolume:
+    sysctls:
+        - sysctl:
+node_config:
+  - name:
+    cmds:
+        - cmd:
+test:
+  - cmds:
+        - cmd:
+
+```
+
 ## configファイルを書き換えた場合
 一度deleteしてからcreateしてください
 ```
-sudo ./microns delete -s -c examples/basic_ebgp/config.yaml | sudo sh
-sudo ./microns create -s -c examples/basic_ebgp/config.yaml | sudo sh
+sudo ./microns recreate -s -c examples/basic_ebgp/config.yaml | sudo sh
 ```
 
 ## statusを一気に見たい場合
