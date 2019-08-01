@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/ak1ra24/microns/api"
 	"github.com/ak1ra24/microns/api/utils"
@@ -27,30 +28,39 @@ import (
 	"golang.org/x/net/context"
 )
 
-// var configFile string
-
-// createCmd represents the create command
-var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "create docker container and ns topology",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		// fmt.Println("create called")
-
+// recreateCmd represents the recreate command
+var recreateCmd = &cobra.Command{
+	Use:   "recreate",
+	Short: "reconfigure router",
+	Long: `if you change conf, execute this command.
+	this command is that delete and create.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// fmt.Println("delete called")
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
 		// fmt.Println(cfgFile)
+
 		ctx := context.Background()
 		cli, err := client.NewEnvClient()
 		if err != nil {
-			return err
+			panic(err)
 		}
 
 		nodes := utils.ParseNodes(cfgFile)
 		configs := utils.ParseConfig(cfgFile)
-
+		// remove container and netns
 		if apion {
+			fmt.Println("----------------------------------------------")
+			fmt.Println("                   DELETE                     ")
+			fmt.Println("----------------------------------------------")
+			for _, node := range nodes {
+				api.RemoveNs(ctx, cli, node.Name)
+			}
+			fmt.Println("Success Delete microns!")
+			fmt.Println("Waiting for 10 Seconds")
+			time.Sleep(10 * time.Second)
 			fmt.Println("----------------------------------------------")
 			fmt.Println("                   CREATE                     ")
 			fmt.Println("----------------------------------------------")
@@ -65,17 +75,21 @@ var createCmd = &cobra.Command{
 					api.SetLink(node, inf)
 				}
 			}
-
-			for _, config := range configs {
-				runcmds := shell.RunCmd(config)
-				for _, runcmd := range runcmds {
-					fmt.Println(runcmd)
-				}
-			}
-
 			fmt.Println("Success create microns!")
-			return nil
 		} else if shellon {
+			fmt.Println("echo '----------------------------------------------'")
+			fmt.Println("echo '                   DELETE                     '")
+			fmt.Println("echo '----------------------------------------------'")
+			// delete ns and container
+			for _, node := range nodes {
+				delNscmd := shell.NsDel(node.Name)
+				fmt.Println(delNscmd)
+				delDockercmd := shell.DockerDel(node.Name)
+				fmt.Println(delDockercmd)
+			}
+			fmt.Println("echo 'Success Delete microns!'")
+			fmt.Println("echo 'Waiting for 10 Seconds'")
+			time.Sleep(10 * time.Second)
 			fmt.Println("echo '----------------------------------------------'")
 			fmt.Println("echo '                   CREATE                     '")
 			fmt.Println("echo '----------------------------------------------'")
@@ -114,23 +128,20 @@ var createCmd = &cobra.Command{
 			}
 
 			fmt.Println("echo 'Success create microns!'")
-			return nil
 		}
-		return nil
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(recreateCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
-	// rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "", "config file name")
+	// recreateCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// recreateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
