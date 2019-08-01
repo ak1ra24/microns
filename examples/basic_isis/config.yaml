@@ -17,27 +17,6 @@ nodes:
           ipv4: 20.1.0.1/30
           peernode: R5
           peerinf: net0
-    cmds:
-        - cmd: /etc/init.d/frr start
-        - cmd: >-
-            vtysh -c "conf t"
-            -c 'int lo'
-            -c ' ip address 10.255.0.1/32'
-            -c ' exit'
-            -c 'int net0'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'int net1'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'int net2'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'router isis FOO'
-            -c ' net 47.0023.0000.0000.0001.00'
-            -c ' mpls-te on'
-            -c ' mpls-te router-address 10.255.0.1'
-            -c ' exit'
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -64,27 +43,6 @@ nodes:
           ipv4: 20.2.0.1/30
           peernode: R6
           peerinf: net0
-    cmds:
-        - cmd: /etc/init.d/frr start
-        - cmd: >-
-            vtysh -c "conf t"
-            -c 'int lo'
-            -c ' ip address 10.255.0.2/32'
-            -c ' exit'
-            -c 'int net0'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'int net1'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'int net2'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'router isis FOO'
-            -c ' net 47.0023.0000.0000.0002.00'
-            -c ' mpls-te on'
-            -c ' mpls-te router-address 10.255.0.2'
-            -c ' exit'
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -112,27 +70,6 @@ nodes:
           ipv4: 20.3.0.1/30
           peernode: R7
           peerinf: net0
-    cmds:
-        - cmd: /etc/init.d/frr start
-        - cmd: >-
-            vtysh -c "conf t"
-            -c 'int lo'
-            -c ' ip address 10.255.0.3/32'
-            -c ' exit'
-            -c 'int net0'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'int net1'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'int net2'
-            -c ' ip router isis FOO'
-            -c ' exit'
-            -c 'router isis FOO'
-            -c ' net 47.0023.0000.0000.0003.00'
-            -c ' mpls-te on'
-            -c ' mpls-te router-address 10.255.0.3'
-            -c ' exit'
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -160,6 +97,152 @@ nodes:
           ipv4: 20.4.0.1/30
           peernode: R8
           peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R5
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 20.1.0.2/30
+          peernode: R1
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R6
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 20.2.0.2/30
+          peernode: R2
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R7
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 20.3.0.2/30
+          peernode: R3
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R8
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 20.4.0.2/30
+          peernode: R4
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+
+node_config:
+  - name: R1
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c 'int lo'
+            -c ' ip address 10.255.0.1/32'
+            -c ' exit'
+            -c 'int net0'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'int net1'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'int net2'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'router isis FOO'
+            -c ' net 47.0023.0000.0000.0001.00'
+            -c ' mpls-te on'
+            -c ' mpls-te router-address 10.255.0.1'
+            -c ' exit'
+  - name: R2
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c 'int lo'
+            -c ' ip address 10.255.0.2/32'
+            -c ' exit'
+            -c 'int net0'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'int net1'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'int net2'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'router isis FOO'
+            -c ' net 47.0023.0000.0000.0002.00'
+            -c ' mpls-te on'
+            -c ' mpls-te router-address 10.255.0.2'
+            -c ' exit'
+  - name: R3
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c 'int lo'
+            -c ' ip address 10.255.0.3/32'
+            -c ' exit'
+            -c 'int net0'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'int net1'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'int net2'
+            -c ' ip router isis FOO'
+            -c ' exit'
+            -c 'router isis FOO'
+            -c ' net 47.0023.0000.0000.0003.00'
+            -c ' mpls-te on'
+            -c ' mpls-te router-address 10.255.0.3'
+            -c ' exit'
+  - name: R4
     cmds:
         - cmd: /etc/init.d/frr start
         - cmd: >-
@@ -181,88 +264,67 @@ nodes:
             -c ' mpls-te on'
             -c ' mpls-te router-address 10.255.0.4'
             -c ' exit'
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
   - name: R5
-    image: akiranet24/ubuntu:18.10
-    interfaces:
-        - inf: net0
-          type: direct
-          ipv4: 20.1.0.2/30
-          peernode: R1
-          peerinf: net2
     cmds:
         - cmd: ip route replace default via 20.1.0.1
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
   - name: R6
-    image: akiranet24/ubuntu:18.10
-    interfaces:
-        - inf: net0
-          type: direct
-          ipv4: 20.2.0.2/30
-          peernode: R2
-          peerinf: net2
     cmds:
         - cmd: ip route replace default via 20.2.0.1
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
   - name: R7
-    image: akiranet24/ubuntu:18.10
-    interfaces:
-        - inf: net0
-          type: direct
-          ipv4: 20.3.0.2/30
-          peernode: R3
-          peerinf: net2
     cmds:
         - cmd: ip route replace default via 20.3.0.1
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
   - name: R8
-    image: akiranet24/ubuntu:18.10
-    interfaces:
-        - inf: net0
-          type: direct
-          ipv4: 20.4.0.2/30
-          peernode: R4
-          peerinf: net2
     cmds:
         - cmd: ip route replace default via 20.4.0.1
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+
+test:
+test:
+  - cmds:
+        - cmd: docker exec R1 ping -c2 10.0.0.1
+        - cmd: docker exec R1 ping -c2 10.0.0.2
+        - cmd: docker exec R1 ping -c2 10.0.0.5
+        - cmd: docker exec R1 ping -c2 10.0.0.6
+
+        - cmd: docker exec R2 ping -c2 10.0.0.1
+        - cmd: docker exec R2 ping -c2 10.0.0.2
+        - cmd: docker exec R2 ping -c2 10.0.0.9
+        - cmd: docker exec R2 ping -c2 10.0.0.10
+
+        - cmd: docker exec R3 ping -c2 10.0.0.5
+        - cmd: docker exec R3 ping -c2 10.0.0.6
+        - cmd: docker exec R3 ping -c2 10.0.0.13
+        - cmd: docker exec R3 ping -c2 10.0.0.14
+
+        - cmd: docker exec R4 ping -c2 10.0.0.9
+        - cmd: docker exec R4 ping -c2 10.0.0.10
+        - cmd: docker exec R4 ping -c2 10.0.0.13
+        - cmd: docker exec R4 ping -c2 10.0.0.14
+
+        - cmd: docker exec R5 ping -c2 20.1.0.1
+        - cmd: docker exec R5 ping -c2 20.1.0.2
+        - cmd: docker exec R6 ping -c2 20.2.0.1
+        - cmd: docker exec R6 ping -c2 20.2.0.2
+        - cmd: docker exec R7 ping -c2 20.3.0.1
+        - cmd: docker exec R7 ping -c2 20.3.0.2
+        - cmd: docker exec R8 ping -c2 20.4.0.1
+        - cmd: docker exec R8 ping -c2 20.4.0.2
+
+        - cmd: docker exec R5 ping -c2 20.1.0.2
+        - cmd: docker exec R5 ping -c2 20.2.0.2
+        - cmd: docker exec R5 ping -c2 20.3.0.2
+        - cmd: docker exec R5 ping -c2 20.4.0.2
+
+        - cmd: docker exec R6 ping -c2 20.1.0.2
+        - cmd: docker exec R6 ping -c2 20.2.0.2
+        - cmd: docker exec R6 ping -c2 20.3.0.2
+        - cmd: docker exec R6 ping -c2 20.4.0.2
+
+        - cmd: docker exec R7 ping -c2 20.1.0.2
+        - cmd: docker exec R7 ping -c2 20.2.0.2
+        - cmd: docker exec R7 ping -c2 20.3.0.2
+        - cmd: docker exec R7 ping -c2 20.4.0.2
+
+        - cmd: docker exec R8 ping -c2 20.1.0.2
+        - cmd: docker exec R8 ping -c2 20.2.0.2
+        - cmd: docker exec R8 ping -c2 20.3.0.2
+        - cmd: docker exec R8 ping -c2 20.4.0.2

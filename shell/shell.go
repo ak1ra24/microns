@@ -8,7 +8,7 @@ import (
 )
 
 // func RunContainer(nodename, imagename string) string {
-func RunContainer(node utils.Node) string {
+func RunContainer(node utils.NodeInfo) string {
 
 	check_container := `
 if docker container ls | grep %s > /dev/null 2>&1; then
@@ -77,7 +77,7 @@ func SymlinkNstoContainer(nodename string) string {
 	return symlinkcmd
 }
 
-func LinkAdd(node utils.Node, inf utils.InterFace) (string, string) {
+func LinkAdd(node utils.NodeInfo, inf utils.InterFace) (string, string) {
 	// node1 := inf.InfName
 	// node2 := inf.PeerInf
 	// vethname := node1 + "_to_" + node2
@@ -151,11 +151,11 @@ func AddrAddv6(nodename, vethname string, inf utils.InterFace) string {
 	return addAddrcmd
 }
 
-func RunCmd(node utils.Node) []string {
+func RunCmd(config utils.Nodeconfig) []string {
 
 	var runcmds []string
-	for _, cmd := range node.Cmds {
-		runcmd := fmt.Sprintf("docker exec %s %s", node.Name, cmd.Cmd)
+	for _, cmd := range config.Cmds {
+		runcmd := fmt.Sprintf("docker exec %s %s", config.Name, cmd.Cmd)
 		runcmds = append(runcmds, runcmd)
 	}
 
@@ -172,4 +172,14 @@ func DockerDel(nodename string) string {
 	delDockercmd := fmt.Sprintf("docker rm -f %s", nodename)
 
 	return delDockercmd
+}
+
+func RunTestCmd(testcmds utils.TestCmd) []string {
+
+	var runtestcmds []string
+	for _, testcmd := range testcmds.Cmds {
+		runtestcmds = append(runtestcmds, testcmd.Cmd)
+	}
+
+	return runtestcmds
 }

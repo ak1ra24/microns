@@ -12,6 +12,113 @@ nodes:
           ipv4: 10.0.0.9/30
           peernode: R4
           peerinf: net0
+    volumes:
+        - hostvolume: "/dev"
+          containervolume: "/dev"
+        - hostvolume: "/lib/modules"
+          containervolume: "/lib/modules"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R2
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.2/30
+          peernode: R1
+          peerinf: net0
+        - inf: net1
+          type: direct
+          ipv4: 10.0.0.5/30
+          peernode: R3
+          peerinf: net0
+        - inf: net2
+          type: direct
+          ipv4: 10.0.0.13/30
+          peernode: R4
+          peerinf: net2
+    volumes:
+        - hostvolume: "/dev"
+          containervolume: "/dev"
+        - hostvolume: "/lib/modules"
+          containervolume: "/lib/modules"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R3
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.6/30
+          peernode: R2
+          peerinf: net1
+        - inf: net1
+          type: direct
+          ipv4: 10.0.0.17/30
+          peernode: R4
+          peerinf: net1
+    volumes:
+        - hostvolume: "/dev"
+          containervolume: "/dev"
+        - hostvolume: "/lib/modules"
+          containervolume: "/lib/modules"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R4
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.0.0.10/30
+          peernode: R1
+          peerinf: net1
+        - inf: net1
+          type: direct
+          ipv4: 10.0.0.18/30
+          peernode: R3
+          peerinf: net1
+        - inf: net2
+          type: direct
+          ipv4: 10.0.0.14/30
+          peernode: R2
+          peerinf: net2
+    volumes:
+        - hostvolume: "/dev"
+          containervolume: "/dev"
+        - hostvolume: "/lib/modules"
+          containervolume: "/lib/modules"
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+
+node_config:
+  - name: R1
     cmds:
         - cmd: modprobe mpls_router
         - cmd: modprobe mpls_gso
@@ -45,38 +152,7 @@ nodes:
             -c ' segment-routing node-msd 8'
             -c ' segment-routing prefix 10.255.0.1/32 index 1001'
             -c 'exit'
-        - cmd: ip route add 10.255.0.3/32 encap mpls 17004/17003 via 10.0.0.2
-    volumes:
-        - hostvolume: "/dev"
-          containervolume: "/dev"
-        - hostvolume: "/lib/modules"
-          containervolume: "/lib/modules"
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
   - name: R2
-    image: akiranet24/frr:1.0
-    interfaces:
-        - inf: net0
-          type: direct
-          ipv4: 10.0.0.2/30
-          peernode: R1
-          peerinf: net0
-        - inf: net1
-          type: direct
-          ipv4: 10.0.0.5/30
-          peernode: R3
-          peerinf: net0
-        - inf: net2
-          type: direct
-          ipv4: 10.0.0.13/30
-          peernode: R4
-          peerinf: net2
     cmds:
         - cmd: modprobe mpls_router
         - cmd: modprobe mpls_gso
@@ -114,33 +190,7 @@ nodes:
             -c ' segment-routing node-msd 8'
             -c ' segment-routing prefix 10.255.0.2/32 index 1002'
             -c 'exit'
-    volumes:
-        - hostvolume: "/dev"
-          containervolume: "/dev"
-        - hostvolume: "/lib/modules"
-          containervolume: "/lib/modules"
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
   - name: R3
-    image: akiranet24/frr:1.0
-    interfaces:
-        - inf: net0
-          type: direct
-          ipv4: 10.0.0.6/30
-          peernode: R2
-          peerinf: net1
-        - inf: net1
-          type: direct
-          ipv4: 10.0.0.17/30
-          peernode: R4
-          peerinf: net1
     cmds:
         - cmd: modprobe mpls_router
         - cmd: modprobe mpls_gso
@@ -174,39 +224,7 @@ nodes:
             -c ' segment-routing node-msd 8'
             -c ' segment-routing prefix 10.255.0.3/32 index 1003'
             -c 'exit'
-        - cmd: ip route add 10.255.0.1/32 encap mpls 17002/17001 via 10.0.0.18
-    volumes:
-        - hostvolume: "/dev"
-          containervolume: "/dev"
-        - hostvolume: "/lib/modules"
-          containervolume: "/lib/modules"
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
   - name: R4
-    image: akiranet24/frr:1.0
-    interfaces:
-        - inf: net0
-          type: direct
-          ipv4: 10.0.0.10/30
-          peernode: R1
-          peerinf: net1
-        - inf: net1
-          type: direct
-          ipv4: 10.0.0.18/30
-          peernode: R3
-          peerinf: net1
-        - inf: net2
-          type: direct
-          ipv4: 10.0.0.14/30
-          peernode: R2
-          peerinf: net2
     cmds:
         - cmd: modprobe mpls_router
         - cmd: modprobe mpls_gso
@@ -244,17 +262,13 @@ nodes:
             -c ' segment-routing node-msd 8'
             -c ' segment-routing prefix 10.255.0.4/32 index 1004'
             -c 'exit'
-    volumes:
-        - hostvolume: "/dev"
-          containervolume: "/dev"
-        - hostvolume: "/lib/modules"
-          containervolume: "/lib/modules"
-    sysctls:
-        - sysctl: net.ipv4.ip_forward=1
-        - sysctl: net.ipv4.conf.all.rp_filter=0
-        - sysctl: net.ipv4.conf.lo.rp_filter=0
-        - sysctl: net.ipv6.conf.all.disable_ipv6=0
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.forwarding=1
-        - sysctl: net.ipv6.conf.all.seg6_enabled=1
-        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+
+test:
+test:
+  - cmds:
+    ## SR-MPLS Operation
+    - cmd: docker exec R1 ip route add 10.255.0.3/32 encap mpls 17004/17003 via 10.0.0.2
+    - cmd: docker exec R3 ip route add 10.255.0.1/32 encap mpls 17002/17001 via 10.0.0.18
+    ## SR-MPLS Test
+    - cmd: docker exec R1 ping -c2 10.255.0.3 -I 10.255.0.1
+

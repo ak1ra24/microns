@@ -19,54 +19,50 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ak1ra24/microns/api"
 	"github.com/ak1ra24/microns/api/utils"
-	"github.com/docker/docker/client"
+	"github.com/ak1ra24/microns/shell"
 	"github.com/spf13/cobra"
-	"golang.org/x/net/context"
 )
 
-// statusCmd represents the status command
-var statusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "status docker container and ns topology",
+// testCmd represents the test command
+var testCmd = &cobra.Command{
+	Use:   "test",
+	Short: "Execute test from config",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("status called")
+		// fmt.Println("create called")
 
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		fmt.Println(cfgFile)
-		ctx := context.Background()
-		cli, err := client.NewEnvClient()
-		if err != nil {
-			return err
-		}
+		// fmt.Println(cfgFile)
+		tests := utils.ParseTest(cfgFile)
 
-		nodes := utils.ParseNodes(cfgFile)
+		fmt.Println("echo '----------------------------------------------'")
+		fmt.Println("echo '                   test                       '")
+		fmt.Println("echo '----------------------------------------------'")
 
-		fmt.Println("----------------------------------------------")
-		fmt.Println("                   STATUS                     ")
-		fmt.Println("----------------------------------------------")
-		for _, node := range nodes {
-			status := api.StatusNs(ctx, cli, node.Name)
-			fmt.Println(status)
+		for _, test := range tests {
+			runtestcmds := shell.RunTestCmd(test)
+			for _, runtestcmd := range runtestcmds {
+				fmt.Println(runtestcmd)
+			}
 		}
+		fmt.Println("echo 'Success test microns!'")
 		return nil
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(testCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// statusCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// testCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// statusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// testCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

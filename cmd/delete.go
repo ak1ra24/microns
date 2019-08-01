@@ -47,7 +47,7 @@ var deleteCmd = &cobra.Command{
 			panic(err)
 		}
 
-		nodes := utils.ParseYaml(cfgFile)
+		nodes := utils.ParseNodes(cfgFile)
 		// remove container and netns
 		if apion {
 			fmt.Println("----------------------------------------------")

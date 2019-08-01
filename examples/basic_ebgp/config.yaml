@@ -12,16 +12,6 @@ nodes:
           ipv4: 10.1.0.1/24
           peernode: R2
           peerinf: net0
-    cmds:
-        - cmd: /etc/init.d/frr start
-        - cmd: >-
-            vtysh -c "conf t"
-            -c "router bgp 100"
-            -c "bgp router-id 1.1.1.1"
-            -c "neighbor 10.0.0.2 remote-as 200"
-            -c "neighbor 10.1.0.2 remote-as 300"
-            -c "network 10.1.0.0/24"
-            -c "network 10.0.0.0/24"
     # volumes:
     #     - hostvolume: "test"
     #       containervolume: "/tmp/test"
@@ -48,16 +38,6 @@ nodes:
           ipv4: 10.2.0.1/24
           peernode: R3
           peerinf: net0
-    cmds:
-        - cmd: /etc/init.d/frr start
-        - cmd: >-
-            vtysh -c "conf t"
-            -c "router bgp 200"
-            -c "bgp router-id 2.2.2.2"
-            -c "neighbor 10.0.0.1 remote-as 100"
-            -c "neighbor 10.2.0.2 remote-as 400"
-            -c "network 10.0.0.0/24"
-            -c "network 10.2.0.0/24"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -80,15 +60,6 @@ nodes:
           ipv4: 10.3.0.1/24
           peernode: C0
           peerinf: net0
-    cmds:
-        - cmd: /etc/init.d/frr start
-        - cmd: >-
-            vtysh -c "conf t"
-            -c "router bgp 300"
-            -c "bgp router-id 3.3.3.3"
-            -c "neighbor 10.1.0.1 remote-as 100"
-            -c "network 10.1.0.0/24"
-            -c "network 10.3.0.0/24"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -111,15 +82,6 @@ nodes:
           ipv4: 10.4.0.1/24
           peernode: C1
           peerinf: net0
-    cmds:
-        - cmd: /etc/init.d/frr start
-        - cmd: >-
-            vtysh -c "conf t"
-            -c "router bgp 400"
-            -c "bgp router-id 4.4.4.4"
-            -c "neighbor 10.2.0.1 remote-as 200"
-            -c "network 10.2.0.0/24"
-            -c "network 10.4.0.0/24"
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -137,9 +99,6 @@ nodes:
           ipv4: 10.3.0.2/24
           peernode: R2
           peerinf: net1
-    cmds:
-        - cmd: ip route del default
-        - cmd: ip route add default via 10.3.0.1
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -157,9 +116,6 @@ nodes:
           ipv4: 10.4.0.2/24
           peernode: R3
           peerinf: net1
-    cmds:
-        - cmd: ip route del default
-        - cmd: ip route add default via 10.4.0.1
     sysctls:
         - sysctl: net.ipv4.ip_forward=1
         - sysctl: net.ipv4.conf.all.rp_filter=0
@@ -169,3 +125,58 @@ nodes:
         - sysctl: net.ipv6.conf.all.forwarding=1
         - sysctl: net.ipv6.conf.all.seg6_enabled=1
         - sysctl: net.ipv6.conf.default.seg6_enabled=1
+node_config:
+  - name: R0
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "router bgp 100"
+            -c "bgp router-id 1.1.1.1"
+            -c "neighbor 10.0.0.2 remote-as 200"
+            -c "neighbor 10.1.0.2 remote-as 300"
+            -c "network 10.1.0.0/24"
+            -c "network 10.0.0.0/24"
+  - name: R1
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "router bgp 200"
+            -c "bgp router-id 2.2.2.2"
+            -c "neighbor 10.0.0.1 remote-as 100"
+            -c "neighbor 10.2.0.2 remote-as 400"
+            -c "network 10.0.0.0/24"
+            -c "network 10.2.0.0/24"
+
+  - name: R2
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "router bgp 300"
+            -c "bgp router-id 3.3.3.3"
+            -c "neighbor 10.1.0.1 remote-as 100"
+            -c "network 10.1.0.0/24"
+            -c "network 10.3.0.0/24"
+  - name: R3
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "router bgp 400"
+            -c "bgp router-id 4.4.4.4"
+            -c "neighbor 10.2.0.1 remote-as 200"
+            -c "network 10.2.0.0/24"
+            -c "network 10.4.0.0/24"
+  - name: C0
+    cmds:
+        - cmd: ip route del default
+        - cmd: ip route add default via 10.3.0.1
+  - name: C1
+    cmds:
+        - cmd: ip route del default
+        - cmd: ip route add default via 10.4.0.1
+test:
+  - cmds:
+        - cmd: docker exec C0 ping -c2 10.4.0.2

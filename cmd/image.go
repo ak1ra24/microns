@@ -36,7 +36,7 @@ var imageCmd = &cobra.Command{
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		nodes := utils.ParseYaml(cfgFile)
+		nodes := utils.ParseNodes(cfgFile)
 		fmt.Println("----------------------------------------------")
 		fmt.Println("                   IMAGE                      ")
 		fmt.Println("----------------------------------------------")

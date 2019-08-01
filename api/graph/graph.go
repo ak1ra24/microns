@@ -10,7 +10,7 @@ import (
 	"github.com/awalterschulze/gographviz"
 )
 
-func Graph(nodes []utils.Node, filename string) {
+func Graph(nodes []utils.NodeInfo, filename string) {
 	g := gographviz.NewGraph()
 	if err := g.SetName("G"); err != nil {
 		panic(err)
@@ -24,9 +24,9 @@ func Graph(nodes []utils.Node, filename string) {
 		panic(err)
 	}
 
-	// if err := g.AddAttr("G", "layout", "neato"); err != nil {
-	// 	panic(err)
-	// }
+	if err := g.AddAttr("G", "layout", "sfdp"); err != nil {
+		panic(err)
+	}
 
 	// node setting
 	nodeAttrs := make(map[string]string)
@@ -87,15 +87,15 @@ func Graph(nodes []utils.Node, filename string) {
 			addrv4info = addrv4[0]
 			addrv6 = strings.Split(Addrv6[linkinfo], "-")
 			addrv6info = addrv6[0]
-			edgeAttrs["label"] = fmt.Sprintf("\"%s-%s, IPv4: %s, IPv6: %s\"", edge11[1], edge22[1], addrv4info, addrv6info)
+			edgeAttrs["label"] = fmt.Sprintf("\"%s, IPv4: %s, IPv6: %s\"", edge11[1], addrv4info, addrv6info)
 		} else if len(Addrv4[linkinfo]) != 0 && len(Addrv6[linkinfo]) == 0 {
 			addrv4 = strings.Split(Addrv4[linkinfo], "-")
 			addrv4info = addrv4[0]
-			edgeAttrs["label"] = fmt.Sprintf("\"%s-%s, IPv4: %s\"", edge11[1], edge22[1], addrv4info)
+			edgeAttrs["label"] = fmt.Sprintf("\"%s, IPv4: %s\"", edge11[1], addrv4info)
 		} else if len(Addrv4[linkinfo]) == 0 && len(Addrv6[linkinfo]) != 0 {
 			addrv6 = strings.Split(Addrv6[linkinfo], "-")
 			addrv6info = addrv6[0]
-			edgeAttrs["label"] = fmt.Sprintf("\"%s-%s, IPv6: %s\"", edge11[1], edge22[1], addrv6info)
+			edgeAttrs["label"] = fmt.Sprintf("\"%s, IPv6: %s\"", edge11[1], addrv6info)
 		}
 
 		if err := g.AddEdge(edge1, edge2, true, edgeAttrs); err != nil {
@@ -130,7 +130,7 @@ func DottoPng(filename string) {
 
 func main() {
 	filename := "hai"
-	nodes := utils.ParseYaml("./config.yaml")
+	nodes := utils.ParseNodes("./config.yaml")
 	Graph(nodes, filename)
 	DottoPng(filename)
 }

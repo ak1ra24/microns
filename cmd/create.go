@@ -47,7 +47,8 @@ var createCmd = &cobra.Command{
 			return err
 		}
 
-		nodes := utils.ParseYaml(cfgFile)
+		nodes := utils.ParseNodes(cfgFile)
+		configs := utils.ParseConfig(cfgFile)
 
 		if apion {
 			fmt.Println("----------------------------------------------")
@@ -95,12 +96,15 @@ var createCmd = &cobra.Command{
 						fmt.Println(addAddrv6cmd)
 					}
 				}
+			}
 
-				runcmds := shell.RunCmd(node)
+			for _, config := range configs {
+				runcmds := shell.RunCmd(config)
 				for _, runcmd := range runcmds {
 					fmt.Println(runcmd)
 				}
 			}
+
 			fmt.Println("echo 'Success create microns!'")
 			return nil
 		}

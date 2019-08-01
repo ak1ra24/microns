@@ -6,17 +6,33 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-type Data struct {
-	Nodes []Node `yaml:"nodes"`
+type NodesInfo struct {
+	NodesInfo []NodeInfo `yaml:"nodes"`
 }
 
-type Node struct {
+type NodeInfo struct {
 	Name      string      `yaml:"name"`
 	Image     string      `yaml:"image"`
 	Interface []InterFace `yaml:"interfaces"`
-	Cmds      []Cmd       `yaml:"cmds"`
 	Volumes   []Volume    `yaml:"volumes"`
 	Sysctls   []Sysctl    `yaml:"sysctls"`
+}
+
+type Config struct {
+	Config []Nodeconfig `yaml:"node_config"`
+}
+
+type Nodeconfig struct {
+	Name string `yaml:"name"`
+	Cmds []Cmd  `yaml:"cmds"`
+}
+
+type Tests struct {
+	Testcmds []TestCmd `yaml:"test"`
+}
+
+type TestCmd struct {
+	Cmds []Cmd `yaml:"cmds"`
 }
 
 type InterFace struct {
@@ -41,23 +57,49 @@ type Volume struct {
 	ContainerVolume string `yaml:"containervolume"`
 }
 
-func ParseYaml(filepath string) []Node {
+func ParseNodes(filepath string) []NodeInfo {
 	buf, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		panic(err)
 	}
-	// fmt.Println("----------------------------------------------")
-	// fmt.Println("                   CONFIG                     ")
-	// fmt.Println("----------------------------------------------")
-	// fmt.Printf("%+v\n", string(buf))
 
-	var nodes Data
+	var nodes NodesInfo
 
 	err = yaml.Unmarshal(buf, &nodes)
 	if err != nil {
 		panic(err)
 	}
-	// fmt.Printf("nodes: %+v\n", nodes)
 
-	return nodes.Nodes
+	return nodes.NodesInfo
+}
+
+func ParseConfig(filepath string) []Nodeconfig {
+	buf, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		panic(err)
+	}
+
+	var nodeconfigs Config
+
+	err = yaml.Unmarshal(buf, &nodeconfigs)
+	if err != nil {
+		panic(err)
+	}
+
+	return nodeconfigs.Config
+}
+
+func ParseTest(filepath string) []TestCmd {
+	buf, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		panic(err)
+	}
+
+	var tests Tests
+	err = yaml.Unmarshal(buf, &tests)
+	if err != nil {
+		panic(err)
+	}
+
+	return tests.Testcmds
 }
