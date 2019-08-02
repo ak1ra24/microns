@@ -77,6 +77,12 @@ func SymlinkNstoContainer(nodename string) string {
 	return symlinkcmd
 }
 
+func AddBr(bridge utils.Switch) string {
+	br := fmt.Sprintf("ip link add %s type bridge", bridge.Name)
+
+	return br
+}
+
 func LinkAdd(node utils.NodeInfo, inf utils.InterFace) (string, string) {
 	// node1 := inf.InfName
 	// node2 := inf.PeerInf
@@ -103,6 +109,43 @@ func LinkAdd(node utils.NodeInfo, inf utils.InterFace) (string, string) {
 	// addlinkcmd := fmt.Sprintf("ip link add %s type veth peer name %s", vethname, peername)
 
 	return vethname, CheckandAddLinkcmd
+}
+
+func LinkAddBr(bridges []utils.Switch, node utils.NodeInfo, inf utils.InterFace) ([]string, string, string, string) {
+	var checklinks []string
+	var brlinkname string
+	var brname string
+
+	vethname := fmt.Sprintf("%s", inf.InfName)
+	for _, br := range bridges {
+		for _, intface := range br.Interfaces {
+			if node.Name == intface.Args {
+				checklink := fmt.Sprintf("ip link add name %s netns %s type veth peer name %s-%s", vethname, node.Name, br.Name, intface.Args)
+				brlinkname = fmt.Sprintf("%s-%s", br.Name, intface.Args)
+				brname = fmt.Sprintf("%s", br.Name)
+				checklinks = append(checklinks, checklink)
+			}
+		}
+	}
+	return checklinks, brlinkname, brname, vethname
+}
+
+func LinkUpBridge(brname string) string {
+	check_link_up_bridge := fmt.Sprintf("ip link set %s up", brname)
+
+	return check_link_up_bridge
+}
+
+func LinkUpBrLink(brlinkname string) string {
+	check_link_up_brlink := fmt.Sprintf("ip link set %s up", brlinkname)
+
+	return check_link_up_brlink
+}
+
+func LinkSetBridge(brlinkname, bridgename string) string {
+	check_set_br := fmt.Sprintf("ip link set dev %s master %s", brlinkname, bridgename)
+
+	return check_set_br
 }
 
 func LinkSetNs(vethname, nodename string) string {
@@ -172,6 +215,12 @@ func DockerDel(nodename string) string {
 	delDockercmd := fmt.Sprintf("docker rm -f %s", nodename)
 
 	return delDockercmd
+}
+
+func BridgeDel(brname string) string {
+	delBrCmd := fmt.Sprintf("ip link delete %s", brname)
+
+	return delBrCmd
 }
 
 func RunTestCmd(testcmds utils.TestCmd) []string {

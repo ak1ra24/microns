@@ -48,6 +48,7 @@ var deleteCmd = &cobra.Command{
 		}
 
 		nodes := utils.ParseNodes(cfgFile)
+		switches := utils.ParseSwitch(cfgFile)
 		// remove container and netns
 		if apion {
 			fmt.Println("----------------------------------------------")
@@ -67,6 +68,10 @@ var deleteCmd = &cobra.Command{
 				fmt.Println(delNscmd)
 				delDockercmd := shell.DockerDel(node.Name)
 				fmt.Println(delDockercmd)
+			}
+			for _, s := range switches {
+				delBridge := shell.BridgeDel(s.Name)
+				fmt.Println(delBridge)
 			}
 			fmt.Println("echo 'Success Delete microns!'")
 		}

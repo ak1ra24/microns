@@ -59,6 +59,19 @@ type Volume struct {
 	ContainerVolume string `yaml:"containervolume"`
 }
 
+type Switches struct {
+	Switches []Switch `yaml:"switches"`
+}
+
+type Switch struct {
+	Name       string `yaml:"name"`
+	Interfaces []struct {
+		Name string `yaml:"name"`
+		Type string `yaml:"type"`
+		Args string `yaml:"args"`
+	} `yaml:"interfaces"`
+}
+
 func ParseNodes(filepath string) []NodeInfo {
 	buf, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -73,6 +86,22 @@ func ParseNodes(filepath string) []NodeInfo {
 	}
 
 	return nodes.NodesInfo
+}
+
+func ParseSwitch(filepath string) []Switch {
+	buf, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		panic(err)
+	}
+
+	var switches Switches
+
+	err = yaml.Unmarshal(buf, &switches)
+	if err != nil {
+		panic(err)
+	}
+
+	return switches.Switches
 }
 
 func ParseConfig(filepath string) []Nodeconfig {
