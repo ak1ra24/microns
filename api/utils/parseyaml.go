@@ -64,12 +64,8 @@ type Switches struct {
 }
 
 type Switch struct {
-	Name       string `yaml:"name"`
-	Interfaces []struct {
-		Name string `yaml:"name"`
-		Type string `yaml:"type"`
-		Args string `yaml:"args"`
-	} `yaml:"interfaces"`
+	Name       string      `yaml:"name"`
+	Interfaces []InterFace `yaml:"interfaces"`
 }
 
 func ParseNodes(filepath string) []NodeInfo {

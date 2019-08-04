@@ -72,6 +72,8 @@ var deleteCmd = &cobra.Command{
 			for _, s := range switches {
 				delBridge := shell.BridgeDel(s.Name)
 				fmt.Println(delBridge)
+				result_Bridge := fmt.Sprintf("Delete Bridge %s", s.Name)
+				fmt.Println(fmt.Sprintf("echo %s", result_Bridge))
 			}
 			fmt.Println("echo 'Success Delete microns!'")
 		}

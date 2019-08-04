@@ -10,7 +10,7 @@ import (
 	"github.com/awalterschulze/gographviz"
 )
 
-func Graph(nodes []utils.NodeInfo, filename string) {
+func Graph(nodes []utils.NodeInfo, bridges []utils.Switch, filename string) {
 	g := gographviz.NewGraph()
 	if err := g.SetName("G"); err != nil {
 		panic(err)
@@ -40,6 +40,8 @@ func Graph(nodes []utils.NodeInfo, filename string) {
 
 	var Nodes []string
 	var Links []string
+	var nodes_bridges []string
+
 	Link := make(map[string]string)
 	Addrv4 := make(map[string]string)
 	Addrv6 := make(map[string]string)
@@ -48,6 +50,7 @@ func Graph(nodes []utils.NodeInfo, filename string) {
 		for _, inf := range node.Interface {
 			link := node.Name + "-" + inf.InfName
 			peer := inf.PeerNode + "-" + inf.PeerInf
+			fmt.Println("Link&Peer: ", link, peer)
 			if len(inf.Ipv4) != 0 && len(inf.Ipv6) != 0 {
 				Addrv4[link] = fmt.Sprintf("%s", inf.Ipv4)
 				Addrv6[link] = fmt.Sprintf("%s", inf.Ipv6)
@@ -56,14 +59,18 @@ func Graph(nodes []utils.NodeInfo, filename string) {
 			} else if len(inf.Ipv4) == 0 && len(inf.Ipv6) != 0 {
 				Addrv6[link] = fmt.Sprintf("%s", inf.Ipv6)
 			}
-			// fmt.Println(link)
-			// fmt.Println(peer)
 			Link[link] = peer
+			fmt.Println("Link[link]: ", Link[link])
 			Links = append(Links, link)
+			nodes_bridges = append(nodes_bridges, node.Name)
 		}
 	}
 
-	for _, Node := range Nodes {
+	for _, bridge := range bridges {
+		nodes_bridges = append(nodes_bridges, bridge.Name)
+	}
+
+	for _, Node := range nodes_bridges {
 		if err := g.AddNode("G", Node, nodeAttrs); err != nil {
 			panic(err)
 		}
@@ -126,11 +133,4 @@ func DottoPng(filename string) {
 	// if err := os.Remove(dotfile); err != nil {
 	// 	panic(err)
 	// }
-}
-
-func main() {
-	filename := "hai"
-	nodes := utils.ParseNodes("./config.yaml")
-	Graph(nodes, filename)
-	DottoPng(filename)
 }

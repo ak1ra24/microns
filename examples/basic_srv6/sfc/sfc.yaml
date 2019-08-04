@@ -102,9 +102,15 @@ nodes:
 switches:
 - name: SW
   interfaces:
-    - { name: net2, type: docker, args: R2 }
-    - { name: net0, type: docker, args: R10 }
-    - { name: net0, type: docker, args: R11 }
+    - inf: net2
+      type: docker
+      peernode: R2
+    - inf: net0
+      type: docker
+      peernode: R10
+    - inf: net0
+      type: docker
+      peernode: R11
 
 node_config:
 - name: R1

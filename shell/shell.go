@@ -119,9 +119,9 @@ func LinkAddBr(bridges []utils.Switch, node utils.NodeInfo, inf utils.InterFace)
 	vethname := fmt.Sprintf("%s", inf.InfName)
 	for _, br := range bridges {
 		for _, intface := range br.Interfaces {
-			if node.Name == intface.Args {
-				checklink := fmt.Sprintf("ip link add name %s netns %s type veth peer name %s-%s", vethname, node.Name, br.Name, intface.Args)
-				brlinkname = fmt.Sprintf("%s-%s", br.Name, intface.Args)
+			if node.Name == intface.PeerNode {
+				checklink := fmt.Sprintf("ip link add name %s netns %s type veth peer name %s-%s", vethname, node.Name, br.Name, intface.PeerNode)
+				brlinkname = fmt.Sprintf("%s-%s", br.Name, intface.PeerNode)
 				brname = fmt.Sprintf("%s", br.Name)
 				checklinks = append(checklinks, checklink)
 			}
