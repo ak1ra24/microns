@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ak1ra24/microns/api/utils"
 	"github.com/ak1ra24/microns/shell"
+	"github.com/ak1ra24/microns/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +29,6 @@ var testCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Execute test from config",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// fmt.Println("create called")
 
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")

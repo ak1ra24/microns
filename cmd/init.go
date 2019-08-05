@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ak1ra24/microns/api/utils"
+	"github.com/ak1ra24/microns/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +34,6 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// fmt.Println("create called")
 
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML NAME to CREATE FILE")

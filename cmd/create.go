@@ -20,8 +20,8 @@ import (
 	"os"
 
 	"github.com/ak1ra24/microns/api"
-	"github.com/ak1ra24/microns/api/utils"
 	"github.com/ak1ra24/microns/shell"
+	"github.com/ak1ra24/microns/utils"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
@@ -34,8 +34,6 @@ var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "create docker container and ns topology",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// fmt.Println("create called")
-
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)

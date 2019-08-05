@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ak1ra24/microns/api/graph"
-	"github.com/ak1ra24/microns/api/utils"
+	"github.com/ak1ra24/microns/graph"
+	"github.com/ak1ra24/microns/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +31,6 @@ var imageCmd = &cobra.Command{
 	Use:   "image",
 	Short: "create network topology image file",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("image called")
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ak1ra24/microns/api/utils"
+	"github.com/ak1ra24/microns/utils"
 )
 
 // func RunContainer(nodename, imagename string) string {

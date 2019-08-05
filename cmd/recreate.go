@@ -21,8 +21,8 @@ import (
 	"time"
 
 	"github.com/ak1ra24/microns/api"
-	"github.com/ak1ra24/microns/api/utils"
 	"github.com/ak1ra24/microns/shell"
+	"github.com/ak1ra24/microns/utils"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
@@ -35,7 +35,6 @@ var recreateCmd = &cobra.Command{
 	Long: `if you change conf, execute this command.
 	this command is that delete and create.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// fmt.Println("delete called")
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)

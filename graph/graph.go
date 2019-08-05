@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/ak1ra24/microns/api/utils"
+	"github.com/ak1ra24/microns/utils"
 	"github.com/awalterschulze/gographviz"
 )
 
@@ -50,7 +50,6 @@ func Graph(nodes []utils.NodeInfo, bridges []utils.Switch, filename string) {
 		for _, inf := range node.Interface {
 			link := node.Name + "-" + inf.InfName
 			peer := inf.PeerNode + "-" + inf.PeerInf
-			fmt.Println("Link&Peer: ", link, peer)
 			if len(inf.Ipv4) != 0 && len(inf.Ipv6) != 0 {
 				Addrv4[link] = fmt.Sprintf("%s", inf.Ipv4)
 				Addrv6[link] = fmt.Sprintf("%s", inf.Ipv6)
@@ -60,7 +59,6 @@ func Graph(nodes []utils.NodeInfo, bridges []utils.Switch, filename string) {
 				Addrv6[link] = fmt.Sprintf("%s", inf.Ipv6)
 			}
 			Link[link] = peer
-			fmt.Println("Link[link]: ", Link[link])
 			Links = append(Links, link)
 			nodes_bridges = append(nodes_bridges, node.Name)
 		}

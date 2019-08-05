@@ -20,7 +20,7 @@ import (
 	"os"
 
 	"github.com/ak1ra24/microns/api"
-	"github.com/ak1ra24/microns/api/utils"
+	"github.com/ak1ra24/microns/utils"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
@@ -31,7 +31,6 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "status docker container and ns topology",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("status called")
 
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")

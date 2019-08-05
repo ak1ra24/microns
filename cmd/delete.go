@@ -20,8 +20,8 @@ import (
 	"os"
 
 	"github.com/ak1ra24/microns/api"
-	"github.com/ak1ra24/microns/api/utils"
 	"github.com/ak1ra24/microns/shell"
+	"github.com/ak1ra24/microns/utils"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
@@ -34,7 +34,6 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "delete docker container and ns topology",
 	Run: func(cmd *cobra.Command, args []string) {
-		// fmt.Println("delete called")
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
