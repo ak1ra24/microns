@@ -48,6 +48,7 @@ Usage:
   microns [command]
 
 Available Commands:
+  convert     convert from tinet config file to microns config file
   create      create docker container and ns topology
   delete      delete docker container and ns topology
   help        Help about any command
@@ -58,11 +59,12 @@ Available Commands:
   test        Execute test from config
 
 Flags:
-  -a, --api             use Docker api
-  -c, --config string   config file name
-  -h, --help            help for microns
-  -o, --output string   topology image (filename only) (default "topo")
-  -s, --shell           use shell
+  -a, --api              use Docker api
+  -c, --config string    config file name
+  -h, --help             help for microns
+  -m, --microns string   microns config file (default "microns.yaml")
+  -o, --output string    topology image (filename only) (default "topo")
+  -s, --shell            use shell
 
 Use "microns [command] --help" for more information about a command.
 ```
@@ -140,4 +142,9 @@ For Example `-o ebgp => ebgp.dot, ebgp.png`
 ```
 ./microns image -c examples/basic_ebgp/config.yaml -o ebgp
 cat ebgp.dot | graph-easy --from=dot --as_ascii
+```
+
+## tinet config -> microns configへの変換
+```
+./microns convert -c tinetcfg.yaml -o micronscfgfile
 ```
