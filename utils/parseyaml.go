@@ -7,6 +7,47 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+type Tn struct {
+	Nodes []struct {
+		Name       string `yaml:"name"`
+		Image      string `yaml:"image"`
+		Interfaces []struct {
+			Name string `yaml:"name"`
+			Type string `yaml:"type"`
+			Args string `yaml:"args"`
+		} `yaml:"interfaces"`
+	} `yaml:"nodes"`
+	Switches []struct {
+		Name       string        `yaml:"name"`
+		Interfaces []TnInterface `yaml:"interfaces"`
+	} `yaml:"switches"`
+	NodeConfigs []struct {
+		Name string `yaml:"name"`
+		Cmds []struct {
+			Cmd string `yaml:"cmd"`
+		} `yaml:"cmds"`
+	} `yaml:"node_configs"`
+	Test []struct {
+		Name string `yaml:"name"`
+		Cmds []struct {
+			Cmd string `yaml:"cmd"`
+		} `yaml:"cmds"`
+	} `yaml:"test"`
+}
+
+type TnInterface struct {
+	Name string `yaml:"name"`
+	Type string `yaml:"type"`
+	Args string `yaml:"args"`
+}
+
+type Microns struct {
+	Nodes       []NodeInfo   `yaml:"nodes"`
+	Switches    []Switch     `yaml:"switches"`
+	NodeConfigs []Nodeconfig `yaml:"node_config"`
+	Test        []TestCmd    `yaml:"test"`
+}
+
 type NodesInfo struct {
 	NodesInfo []NodeInfo `yaml:"nodes"`
 }
