@@ -29,7 +29,7 @@ type Component struct {
 	Container string `json:"container"`
 }
 
-func Pull(ctx context.Context, cli *client.Client, nodes []utils.NodeInfo) {
+func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 
 	for _, node := range nodes {
 
@@ -179,7 +179,7 @@ func Dockertonetns(ctx context.Context, cli *client.Client, nodename string) {
 }
 
 // func SetLink(node1, node2, name, peername string) {
-func SetLink(node utils.NodeInfo, inf utils.InterFace) {
+func SetLink(node utils.Node, inf utils.Interface) {
 	// node1 := node.Name
 	// node2 := inf.Peer
 	// name := node1 + "_to_" + node2

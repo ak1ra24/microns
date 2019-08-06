@@ -42,20 +42,20 @@ type TnInterface struct {
 }
 
 type Microns struct {
-	Nodes       []NodeInfo   `yaml:"nodes"`
+	Nodes       []Node       `yaml:"nodes"`
 	Switches    []Switch     `yaml:"switches"`
 	NodeConfigs []Nodeconfig `yaml:"node_config"`
 	Test        []TestCmd    `yaml:"test"`
 }
 
-type NodesInfo struct {
-	NodesInfo []NodeInfo `yaml:"nodes"`
+type Nodes struct {
+	Nodes []Node `yaml:"nodes"`
 }
 
-type NodeInfo struct {
+type Node struct {
 	Name      string      `yaml:"name"`
 	Image     string      `yaml:"image"`
-	Interface []InterFace `yaml:"interfaces"`
+	Interface []Interface `yaml:"interfaces"`
 	Volumes   []Volume    `yaml:"volumes"`
 	Sysctls   []Sysctl    `yaml:"sysctls"`
 }
@@ -69,7 +69,7 @@ type Nodeconfig struct {
 	Cmds []Cmd  `yaml:"cmds"`
 }
 
-type Tests struct {
+type Test struct {
 	Testcmds []TestCmd `yaml:"test"`
 }
 
@@ -78,7 +78,7 @@ type TestCmd struct {
 	Cmds []Cmd  `yaml:"cmds"`
 }
 
-type InterFace struct {
+type Interface struct {
 	InfName  string `yaml:"inf"`
 	Type     string `yaml:"type"`
 	Ipv4     string `yaml:"ipv4"`
@@ -106,23 +106,23 @@ type Switches struct {
 
 type Switch struct {
 	Name       string      `yaml:"name"`
-	Interfaces []InterFace `yaml:"interfaces"`
+	Interfaces []Interface `yaml:"interfaces"`
 }
 
-func ParseNodes(filepath string) []NodeInfo {
+func ParseNodes(filepath string) []Node {
 	buf, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		panic(err)
 	}
 
-	var nodes NodesInfo
+	var nodes Nodes
 
 	err = yaml.Unmarshal(buf, &nodes)
 	if err != nil {
 		panic(err)
 	}
 
-	return nodes.NodesInfo
+	return nodes.Nodes
 }
 
 func ParseSwitch(filepath string) []Switch {
@@ -163,7 +163,7 @@ func ParseTest(filepath string) []TestCmd {
 		panic(err)
 	}
 
-	var tests Tests
+	var tests Test
 	err = yaml.Unmarshal(buf, &tests)
 	if err != nil {
 		panic(err)

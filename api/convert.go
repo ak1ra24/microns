@@ -24,13 +24,13 @@ func Convert(tncfg, mncfg string) error {
 	}
 
 	for _, n := range tn.Nodes {
-		var intfaces []utils.InterFace
+		var intfaces []utils.Interface
 		for _, inf := range n.Interfaces {
 			if strings.Contains(inf.Args, "#") {
 				peer := strings.Split(inf.Args, "#")
 				peernode := peer[0]
 				peerinf := peer[1]
-				var intface utils.InterFace = utils.InterFace{
+				var intface utils.Interface = utils.Interface{
 					InfName:  inf.Name,
 					Type:     inf.Type,
 					PeerNode: peernode,
@@ -38,7 +38,7 @@ func Convert(tncfg, mncfg string) error {
 				}
 				intfaces = append(intfaces, intface)
 			} else {
-				var intface utils.InterFace = utils.InterFace{
+				var intface utils.Interface = utils.Interface{
 					InfName:  inf.Name,
 					Type:     inf.Type,
 					PeerNode: inf.Args,
@@ -46,7 +46,7 @@ func Convert(tncfg, mncfg string) error {
 				intfaces = append(intfaces, intface)
 			}
 		}
-		var m utils.NodeInfo = utils.NodeInfo{
+		var m utils.Node = utils.Node{
 			Name:      n.Name,
 			Image:     n.Image,
 			Interface: intfaces,
@@ -68,9 +68,9 @@ func Convert(tncfg, mncfg string) error {
 	}
 
 	for _, s := range tn.Switches {
-		var sinfs []utils.InterFace
+		var sinfs []utils.Interface
 		for _, tninf := range s.Interfaces {
-			sinf := utils.InterFace{
+			sinf := utils.Interface{
 				InfName:  tninf.Name,
 				Type:     tninf.Type,
 				PeerNode: tninf.Args,

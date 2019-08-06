@@ -8,7 +8,7 @@ import (
 )
 
 // func RunContainer(nodename, imagename string) string {
-func RunContainer(node utils.NodeInfo) string {
+func RunContainer(node utils.Node) string {
 
 	check_container := `
 if docker container ls | grep %s > /dev/null 2>&1; then
@@ -66,13 +66,7 @@ func SymlinkNstoContainer(nodename string) string {
 		}
 	}
 
-	var symlinkcmd string
-	symlinkcmd = fmt.Sprintf("ln -s /proc/$PID/ns/net %s", netns)
-	// if _, err := os.Stat(netns); os.IsNotExist(err) {
-	// 	symlinkcmd = fmt.Sprintf("ln -s /proc/$PID/ns/net %s", netns)
-	// } else {
-	// 	symlinkcmd = fmt.Sprintf("echo %s is Exist", netns)
-	// }
+	symlinkcmd := fmt.Sprintf("ln -s /proc/$PID/ns/net %s", netns)
 
 	return symlinkcmd
 }
@@ -83,35 +77,17 @@ func AddBr(bridge utils.Switch) string {
 	return br
 }
 
-func LinkAdd(node utils.NodeInfo, inf utils.InterFace) (string, string) {
-	// node1 := inf.InfName
-	// node2 := inf.PeerInf
-	// vethname := node1 + "_to_" + node2
-	// peername := node2 + "_to_" + node1
-	// vethname := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
-	// peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
+func LinkAdd(node utils.Node, inf utils.Interface) (string, string) {
 	vethname := fmt.Sprintf("%s", inf.InfName)
 	peername := fmt.Sprintf("%s", inf.PeerInf)
 
-	// 	check_link := `
-	// if ip link show %s > /dev/null 2>&1; then
-	// 	echo %s is Exist
-	// elif ip netns exec %s ip link show %s > /dev/null 2>&1; then
-	// 	echo netns:%s link:%s is Exist
-	// else
-	// 	ip link add %s netns %s type veth peer name %s netns %s
-	// fi
-	// `
-	// CheckandAddLinkcmd := fmt.Sprintf(check_link, vethname, vethname, node.Name, vethname, node.Name, vethname, vethname, node.Name, peername, inf.PeerNode)
 	check_link := "ip link add %s netns %s type veth peer name %s netns %s"
 	CheckandAddLinkcmd := fmt.Sprintf(check_link, vethname, node.Name, peername, inf.PeerNode)
-
-	// addlinkcmd := fmt.Sprintf("ip link add %s type veth peer name %s", vethname, peername)
 
 	return vethname, CheckandAddLinkcmd
 }
 
-func LinkAddBr(bridges []utils.Switch, node utils.NodeInfo, inf utils.InterFace) ([]string, string, string, string) {
+func LinkAddBr(bridges []utils.Switch, node utils.Node, inf utils.Interface) ([]string, string, string, string) {
 	var checklinks []string
 	var brlinkname string
 	var brname string
@@ -131,65 +107,43 @@ func LinkAddBr(bridges []utils.Switch, node utils.NodeInfo, inf utils.InterFace)
 }
 
 func LinkUpBridge(brname string) string {
+
 	check_link_up_bridge := fmt.Sprintf("ip link set %s up", brname)
 
 	return check_link_up_bridge
 }
 
 func LinkUpBrLink(brlinkname string) string {
+
 	check_link_up_brlink := fmt.Sprintf("ip link set %s up", brlinkname)
 
 	return check_link_up_brlink
 }
 
 func LinkSetBridge(brlinkname, bridgename string) string {
+
 	check_set_br := fmt.Sprintf("ip link set dev %s master %s", brlinkname, bridgename)
 
 	return check_set_br
 }
 
 func LinkSetNs(vethname, nodename string) string {
-	// 	check_set_link := `
-	// if ip netns exec %s ip link show %s > /dev/null 2>&1; then
-	// 	echo Already Set netns:%s link:%s is Exist
-	// else
-	// 	ip link set %s netns %s up
-	// fi
-	// `
-	// setLinkNscmd := fmt.Sprintf(check_set_link, nodename, vethname, nodename, vethname, vethname, nodename)
-	check_set_link := "ip netns exec %s ip link set %s up"
-	// setLinkNscmd := fmt.Sprintf("ip link set %s netns %s up", vethname, nodename)
-	setLinkNscmd := fmt.Sprintf(check_set_link, nodename, vethname)
+
+	setLinkNscmd := fmt.Sprintf("ip netns exec %s ip link set %s up", nodename, vethname)
 
 	return setLinkNscmd
 }
 
-func AddrAddv4(nodename, vethname string, inf utils.InterFace) string {
-	// 	check_addr := `
-	// if ip netns exec %s ip addr show dev %s > /dev/null 2>&1; then
-	// 	echo Already Add Address
-	// else
-	// 	ip netns exec %s ip addr add %s dev %s
-	// fi
-	// `
+func AddrAddv4(nodename, vethname string, inf utils.Interface) string {
 
 	addAddrcmd := fmt.Sprintf("ip netns exec %s ip addr add %s dev %s", nodename, inf.Ipv4, vethname)
-	// addAddrcmd := fmt.Sprintf(check_addr, nodename, vethname, nodename, inf.Ipv4, vethname)
 
 	return addAddrcmd
 }
 
-func AddrAddv6(nodename, vethname string, inf utils.InterFace) string {
-	// 	check_addr := `
-	// if ip netns exec %s ip addr show dev %s > /dev/null 2>&1; then
-	// 	echo Already Add Address
-	// else
-	// 	ip netns exec %s ip -6 addr add %s dev %s
-	// fi
-	// `
+func AddrAddv6(nodename, vethname string, inf utils.Interface) string {
 
 	addAddrcmd := fmt.Sprintf("ip netns exec %s ip -6 addr add %s dev %s", nodename, inf.Ipv6, vethname)
-	// addAddrcmd := fmt.Sprintf(check_addr, nodename, vethname, nodename, inf.Ipv6, vethname)
 
 	return addAddrcmd
 }

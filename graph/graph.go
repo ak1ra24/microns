@@ -10,7 +10,7 @@ import (
 	"github.com/awalterschulze/gographviz"
 )
 
-func Graph(nodes []utils.NodeInfo, bridges []utils.Switch, filename string) {
+func Graph(nodes []utils.Node, bridges []utils.Switch, filename string) {
 	g := gographviz.NewGraph()
 	if err := g.SetName("G"); err != nil {
 		panic(err)
