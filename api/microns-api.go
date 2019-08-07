@@ -58,7 +58,6 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 				volumes = append(volumes, volume)
 			}
 		}
-		fmt.Println(volumes)
 
 		if len(containers) != 0 {
 			for _, conainerr := range containers {
@@ -78,8 +77,9 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 
 				resp, err := cli.ContainerCreate(ctx,
 					&container.Config{
-						Image: imageName,
-						Tty:   true,
+						Image:    imageName,
+						Hostname: node.Name,
+						Tty:      true,
 					},
 					&container.HostConfig{
 						Privileged: true,
@@ -188,6 +188,16 @@ func SetLink(node utils.Node, inf utils.Interface) {
 	name := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
 	peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
 
+	// get path
+	path := "/var/run/netns/"
+	node1path := path + node1
+
+	pid1, err := utils.ParsePid(node1path)
+	if err != nil {
+		fmt.Printf("Failed to utils.ParsePid: %v\n", err)
+		os.Exit(1)
+	}
+
 	veth := &netlink.Veth{
 		LinkAttrs: netlink.LinkAttrs{
 			Name:  name,
@@ -204,16 +214,6 @@ func SetLink(node utils.Node, inf utils.Interface) {
 	link1, err := netlink.LinkByName(veth.LinkAttrs.Name)
 	if err != nil {
 		fmt.Printf("Not Found Link: %v\n", err)
-		os.Exit(1)
-	}
-
-	// get path
-	path := "/var/run/netns/"
-	node1path := path + node1
-
-	pid1, err := utils.ParsePid(node1path)
-	if err != nil {
-		fmt.Printf("Failed to utils.ParsePid: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -280,6 +280,46 @@ func SetLink(node utils.Node, inf utils.Interface) {
 	if err != nil {
 		fmt.Printf("Failed to Configure NS: %v\n", err)
 	}
+}
+
+func SetConf(ctx context.Context, cli *client.Client, container_name string, cmd string) {
+
+	var runcmd []string
+
+	if strings.Contains(cmd, "vtysh") {
+		for i, str := range strings.Split(cmd, " -c ") {
+			if i != 0 {
+				runcmd = append(runcmd, "-c")
+			}
+			str = strings.Replace(str, "\"", "", -1)
+			runcmd = append(runcmd, str)
+		}
+	} else {
+		runcmd = strings.Split(cmd, " ")
+	}
+
+	idreq, err := cli.ContainerExecCreate(ctx, container_name, types.ExecConfig{
+		User:         "root",
+		Privileged:   true,
+		Tty:          true,
+		Detach:       false,
+		AttachStdin:  true,
+		AttachStderr: true,
+		AttachStdout: true,
+		Cmd:          runcmd,
+	})
+	//
+	if err != nil {
+		panic(err)
+	}
+
+	if err := cli.ContainerExecStart(ctx, idreq.ID, types.ExecStartCheck{
+		Detach: false,
+		Tty:    true,
+	}); err != nil {
+		panic(err)
+	}
+
 }
 
 func RemoveNs(ctx context.Context, cli *client.Client, nodename string) {

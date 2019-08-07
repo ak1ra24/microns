@@ -41,7 +41,7 @@ var imageCmd = &cobra.Command{
 		fmt.Println("                   IMAGE                      ")
 		fmt.Println("----------------------------------------------")
 		graph.Graph(nodes, bridges, imgFile)
-		// graph.DottoPng(imgFile)
+		graph.DottoPng(imgFile)
 		fmt.Println("Success create image file")
 	},
 }

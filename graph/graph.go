@@ -24,7 +24,7 @@ func Graph(nodes []utils.Node, bridges []utils.Switch, filename string) {
 		panic(err)
 	}
 
-	if err := g.AddAttr("G", "layout", "sfdp"); err != nil {
+	if err := g.AddAttr("G", "layout", "neato"); err != nil {
 		panic(err)
 	}
 

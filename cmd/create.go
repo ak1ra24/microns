@@ -66,9 +66,8 @@ var createCmd = &cobra.Command{
 			}
 
 			for _, config := range configs {
-				runcmds := shell.RunCmd(config)
-				for _, runcmd := range runcmds {
-					fmt.Println(runcmd)
+				for _, cmd := range config.Cmds {
+					api.SetConf(ctx, cli, config.Name, cmd.Cmd)
 				}
 			}
 
