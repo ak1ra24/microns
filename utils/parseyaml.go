@@ -189,6 +189,13 @@ nodes:
           containervolume: 
     sysctls:
         - sysctl:
+switches:
+	- name: 
+	interfaces:
+		- name: 
+		  type: 
+		  peernode: 
+
 node_config:
   - name: 
     cmds:

@@ -45,9 +45,6 @@ var statusCmd = &cobra.Command{
 
 		nodes := utils.ParseNodes(cfgFile)
 
-		fmt.Println("----------------------------------------------")
-		fmt.Println("                   STATUS                     ")
-		fmt.Println("----------------------------------------------")
 		for _, node := range nodes {
 			status := api.StatusNs(ctx, cli, node.Name)
 			fmt.Println(status)

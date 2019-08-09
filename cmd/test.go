@@ -34,12 +34,8 @@ var testCmd = &cobra.Command{
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		// fmt.Println(cfgFile)
-		tests := utils.ParseTest(cfgFile)
 
-		fmt.Println("echo '----------------------------------------------'")
-		fmt.Println("echo '                   test                       '")
-		fmt.Println("echo '----------------------------------------------'")
+		tests := utils.ParseTest(cfgFile)
 
 		var runtestcmds []string
 		for _, test := range tests {

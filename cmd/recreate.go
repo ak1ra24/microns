@@ -51,18 +51,12 @@ var recreateCmd = &cobra.Command{
 		configs := utils.ParseConfig(cfgFile)
 		// remove container and netns
 		if apion {
-			fmt.Println("----------------------------------------------")
-			fmt.Println("                   DELETE                     ")
-			fmt.Println("----------------------------------------------")
 			for _, node := range nodes {
 				api.RemoveNs(ctx, cli, node.Name)
 			}
 			fmt.Println("Success Delete microns!")
 			fmt.Println("Waiting for 10 Seconds")
 			time.Sleep(10 * time.Second)
-			fmt.Println("----------------------------------------------")
-			fmt.Println("                   CREATE                     ")
-			fmt.Println("----------------------------------------------")
 			api.Pull(ctx, cli, nodes)
 
 			for _, node := range nodes {
@@ -76,9 +70,6 @@ var recreateCmd = &cobra.Command{
 			}
 			fmt.Println("Success create microns!")
 		} else if shellon {
-			fmt.Println("echo '----------------------------------------------'")
-			fmt.Println("echo '                   DELETE                     '")
-			fmt.Println("echo '----------------------------------------------'")
 			// delete ns and container
 			for _, node := range nodes {
 				delNscmd := shell.NsDel(node.Name)
@@ -89,9 +80,6 @@ var recreateCmd = &cobra.Command{
 			fmt.Println("echo 'Success Delete microns!'")
 			fmt.Println("echo 'Waiting for 10 Seconds'")
 			time.Sleep(10 * time.Second)
-			fmt.Println("echo '----------------------------------------------'")
-			fmt.Println("echo '                   CREATE                     '")
-			fmt.Println("echo '----------------------------------------------'")
 			var addAddrv4cmd string
 			var addAddrv6cmd string
 			for _, node := range nodes {

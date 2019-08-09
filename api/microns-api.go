@@ -82,9 +82,10 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 						Tty:      true,
 					},
 					&container.HostConfig{
-						Privileged: true,
-						Sysctls:    sysctlconfs,
-						Binds:      volumes,
+						Privileged:  true,
+						NetworkMode: "none",
+						Sysctls:     sysctlconfs,
+						Binds:       volumes,
 					}, nil, node.Name)
 				if err != nil {
 					fmt.Printf("Failed to Create Container: %v\n", err)
@@ -106,13 +107,15 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 
 			resp, err := cli.ContainerCreate(ctx,
 				&container.Config{
-					Image: imageName,
-					Tty:   true,
+					Image:    imageName,
+					Tty:      true,
+					Hostname: node.Name,
 				},
 				&container.HostConfig{
-					Privileged: true,
-					Sysctls:    sysctlconfs,
-					Binds:      volumes,
+					Privileged:  true,
+					NetworkMode: "none",
+					Sysctls:     sysctlconfs,
+					Binds:       volumes,
 				}, nil, node.Name)
 			if err != nil {
 				fmt.Printf("Failed to Create Container: %v\n", err)
@@ -178,15 +181,119 @@ func Dockertonetns(ctx context.Context, cli *client.Client, nodename string) {
 	}
 }
 
-// func SetLink(node1, node2, name, peername string) {
-func SetLink(node utils.Node, inf utils.Interface) {
-	// node1 := node.Name
-	// node2 := inf.Peer
-	// name := node1 + "_to_" + node2
-	// peername := node2 + "_to_" + node1
+func SetBridge(node utils.Node, inf utils.Interface) {
+	bridge := &netlink.Bridge{LinkAttrs: netlink.LinkAttrs{Name: inf.PeerNode, Flags: net.FlagUp, MTU: 1500}}
+
+	netlink.LinkAdd(bridge)
+
 	node1 := node.Name
-	name := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
-	peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
+	name := fmt.Sprintf("%s", inf.InfName)
+	peername := fmt.Sprintf("%s-%s", node.Name, inf.PeerNode)
+
+	// get path
+	path := "/var/run/netns/"
+	node1path := path + node1
+
+	pid1, err := utils.ParsePid(node1path)
+	if err != nil {
+		fmt.Printf("Failed to utils.ParsePid: %v\n", err)
+		os.Exit(1)
+	}
+	veth := &netlink.Veth{
+		LinkAttrs: netlink.LinkAttrs{
+			Name:  name,
+			Flags: net.FlagUp,
+			MTU:   1500,
+		},
+		PeerName: peername,
+	}
+
+	if err := netlink.LinkAdd(veth); err != nil {
+		fmt.Printf("ip link already added %s -- %s\n", veth.LinkAttrs.Name, veth.PeerName)
+	}
+	fmt.Println("vethname: ", veth.LinkAttrs.Name)
+	link1, err := netlink.LinkByName(veth.LinkAttrs.Name)
+	if err != nil {
+		panic(err)
+	}
+	peerlink1, err := netlink.LinkByName(veth.PeerName)
+	if err != nil {
+		panic(err)
+	}
+
+	// set
+	if err := netlink.LinkSetNsPid(link1, pid1); err != nil {
+		fmt.Printf("ip link %s already exist\n", link1.Attrs().Name)
+	}
+
+	if err := netlink.LinkSetMaster(peerlink1, bridge); err != nil {
+		panic(err)
+	}
+
+	vethNS1, err := ns.GetNS(node1path)
+	if err != nil {
+		fmt.Printf("Failed to get NS %s: %v\n", node1path, err)
+		os.Exit(1)
+	}
+	defer vethNS1.Close()
+
+	err = vethNS1.Do(func(_ ns.NetNS) error {
+		linkns, err := netlink.LinkByName(link1.Attrs().Name)
+		if err != nil {
+			return err
+		}
+
+		if err = netlink.LinkSetUp(linkns); err != nil {
+			return err
+		}
+
+		if inf.Ipv4 != "" {
+			inf_val := strings.Split(inf.Ipv4, "/")
+			ipv4addr := inf_val[0]
+			mask_str := inf_val[1]
+			mask, _ := strconv.Atoi(mask_str)
+			ip := net.IPNet{IP: net.ParseIP(ipv4addr), Mask: net.CIDRMask(mask, 32)}
+
+			addr := &netlink.Addr{IPNet: &ip, Label: ""}
+			if err = netlink.AddrAdd(linkns, addr); err != nil {
+				return err
+			}
+		}
+
+		if inf.Ipv6 != "" {
+			ipv6SysctlAll := fmt.Sprint("net.ipv6.conf.all.disable_ipv6")
+			ipv6SysctlDefault := fmt.Sprint("net.ipv6.conf.default.disable_ipv6")
+			if _, err := sysctl.Sysctl(ipv6SysctlAll, "0"); err != nil {
+				return fmt.Errorf("failed to set ipv6.disable to 0 : %v", err)
+			}
+			if _, err := sysctl.Sysctl(ipv6SysctlDefault, "0"); err != nil {
+				return fmt.Errorf("failed to set ipv6.disable to 0 : %v", err)
+			}
+			inf_val := strings.Split(inf.Ipv6, "/")
+			ipv6addr := inf_val[0]
+			mask_str := inf_val[1]
+			mask, _ := strconv.Atoi(mask_str)
+			ip := net.IPNet{IP: net.ParseIP(ipv6addr), Mask: net.CIDRMask(mask, 128)}
+
+			addr := &netlink.Addr{IPNet: &ip, Label: ""}
+			if err = netlink.AddrAdd(linkns, addr); err != nil {
+				return err
+			}
+		}
+
+		return nil
+
+	})
+
+	if err != nil {
+		fmt.Printf("Failed to Configure NS: %v\n", err)
+	}
+}
+
+func SetLink(node utils.Node, inf utils.Interface) {
+	node1 := node.Name
+	name := fmt.Sprintf("%s", inf.InfName)
+	peername := fmt.Sprintf("%s", inf.PeerInf)
 
 	// get path
 	path := "/var/run/netns/"
@@ -200,9 +307,10 @@ func SetLink(node utils.Node, inf utils.Interface) {
 
 	veth := &netlink.Veth{
 		LinkAttrs: netlink.LinkAttrs{
-			Name:  name,
-			Flags: net.FlagUp,
-			MTU:   1500,
+			Name:      name,
+			Flags:     net.FlagUp,
+			MTU:       1500,
+			Namespace: pid1,
 		},
 		PeerName: peername,
 	}
@@ -282,6 +390,16 @@ func SetLink(node utils.Node, inf utils.Interface) {
 	}
 }
 
+func LinkUp(linkname string) {
+	link, err := netlink.LinkByName(linkname)
+	if err != nil {
+		panic(err)
+	}
+	if err := netlink.LinkSetUp(link); err != nil {
+		panic(err)
+	}
+}
+
 func SetConf(ctx context.Context, cli *client.Client, container_name string, cmd string) {
 
 	var runcmd []string
@@ -344,6 +462,17 @@ func RemoveNs(ctx context.Context, cli *client.Client, nodename string) {
 				os.Exit(1)
 			}
 		}
+	}
+}
+
+func RemoveBr(bridgeName string) {
+	br, err := netlink.LinkByName(bridgeName)
+	if err != nil {
+		fmt.Printf("Not Found Link: %v\n", err)
+		os.Exit(1)
+	}
+	if err := netlink.LinkDel(br); err != nil {
+		panic(err)
 	}
 }
 

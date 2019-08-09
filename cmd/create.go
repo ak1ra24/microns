@@ -38,7 +38,6 @@ var createCmd = &cobra.Command{
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		// fmt.Println(cfgFile)
 		ctx := context.Background()
 		cli, err := client.NewEnvClient()
 		if err != nil {
@@ -50,9 +49,6 @@ var createCmd = &cobra.Command{
 		switches := utils.ParseSwitch(cfgFile)
 
 		if apion {
-			fmt.Println("----------------------------------------------")
-			fmt.Println("                   CREATE                     ")
-			fmt.Println("----------------------------------------------")
 			api.Pull(ctx, cli, nodes)
 
 			for _, node := range nodes {
@@ -61,7 +57,11 @@ var createCmd = &cobra.Command{
 			for _, node := range nodes {
 				fmt.Println(node.Interface)
 				for _, inf := range node.Interface {
-					api.SetLink(node, inf)
+					if inf.Type == "direct" {
+						api.SetLink(node, inf)
+					} else if inf.Type == "bridge" {
+						api.SetBridge(node, inf)
+					}
 				}
 			}
 
@@ -71,12 +71,17 @@ var createCmd = &cobra.Command{
 				}
 			}
 
+			for _, s := range switches {
+				api.LinkUp(s.Name)
+				for _, inf := range s.Interfaces {
+					switchNode := fmt.Sprintf("%s-%s", inf.PeerNode, s.Name)
+					api.LinkUp(switchNode)
+				}
+			}
+
 			fmt.Println("Success create microns!")
 			return nil
 		} else if shellon {
-			fmt.Println("echo '----------------------------------------------'")
-			fmt.Println("echo '                   CREATE                     '")
-			fmt.Println("echo '----------------------------------------------'")
 			var addAddrv4cmd string
 			var addAddrv6cmd string
 			for _, node := range nodes {

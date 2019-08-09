@@ -37,9 +37,6 @@ var imageCmd = &cobra.Command{
 		}
 		nodes := utils.ParseNodes(cfgFile)
 		bridges := utils.ParseSwitch(cfgFile)
-		fmt.Println("----------------------------------------------")
-		fmt.Println("                   IMAGE                      ")
-		fmt.Println("----------------------------------------------")
 		graph.Graph(nodes, bridges, imgFile)
 		graph.DottoPng(imgFile)
 		fmt.Println("Success create image file")

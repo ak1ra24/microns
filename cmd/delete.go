@@ -38,7 +38,6 @@ var deleteCmd = &cobra.Command{
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		// fmt.Println(cfgFile)
 
 		ctx := context.Background()
 		cli, err := client.NewEnvClient()
@@ -50,17 +49,14 @@ var deleteCmd = &cobra.Command{
 		switches := utils.ParseSwitch(cfgFile)
 		// remove container and netns
 		if apion {
-			fmt.Println("----------------------------------------------")
-			fmt.Println("                   DELETE                     ")
-			fmt.Println("----------------------------------------------")
 			for _, node := range nodes {
 				api.RemoveNs(ctx, cli, node.Name)
 			}
+			for _, s := range switches {
+				api.RemoveBr(s.Name)
+			}
 			fmt.Println("Success Delete microns!")
 		} else if shellon {
-			fmt.Println("echo '----------------------------------------------'")
-			fmt.Println("echo '                   DELETE                     '")
-			fmt.Println("echo '----------------------------------------------'")
 			// delete ns and container
 			for _, node := range nodes {
 				delNscmd := shell.NsDel(node.Name)
