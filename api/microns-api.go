@@ -187,7 +187,7 @@ func SetBridge(node utils.Node, inf utils.Interface) {
 	netlink.LinkAdd(bridge)
 
 	node1 := node.Name
-	name := fmt.Sprintf("%s", inf.InfName)
+	name := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
 	peername := fmt.Sprintf("%s-%s", node.Name, inf.PeerNode)
 
 	// get path
@@ -243,6 +243,10 @@ func SetBridge(node utils.Node, inf utils.Interface) {
 			return err
 		}
 
+		if err = netlink.LinkSetName(link1, inf.InfName); err != nil {
+			return err
+		}
+
 		if err = netlink.LinkSetUp(linkns); err != nil {
 			return err
 		}
@@ -292,8 +296,8 @@ func SetBridge(node utils.Node, inf utils.Interface) {
 
 func SetLink(node utils.Node, inf utils.Interface) {
 	node1 := node.Name
-	name := fmt.Sprintf("%s", inf.InfName)
-	peername := fmt.Sprintf("%s", inf.PeerInf)
+	name := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
+	peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
 
 	// get path
 	path := "/var/run/netns/"
@@ -307,10 +311,9 @@ func SetLink(node utils.Node, inf utils.Interface) {
 
 	veth := &netlink.Veth{
 		LinkAttrs: netlink.LinkAttrs{
-			Name:      name,
-			Flags:     net.FlagUp,
-			MTU:       1500,
-			Namespace: pid1,
+			Name:  name,
+			Flags: net.FlagUp,
+			MTU:   1500,
 		},
 		PeerName: peername,
 	}
@@ -340,6 +343,10 @@ func SetLink(node utils.Node, inf utils.Interface) {
 	err = vethNS1.Do(func(_ ns.NetNS) error {
 		linkns, err := netlink.LinkByName(link1.Attrs().Name)
 		if err != nil {
+			return err
+		}
+
+		if err = netlink.LinkSetName(link1, inf.InfName); err != nil {
 			return err
 		}
 

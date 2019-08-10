@@ -13,8 +13,8 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
-	github.com/vishvananda/netlink v1.0.0
-	github.com/vishvananda/netns v0.0.0-20190625233234-7109fa855b0f // indirect
+	github.com/vishvananda/netlink v0.0.0-20190725152630-b4e9f47a11c0
+	github.com/vishvananda/netns v0.0.0-20190625233234-7109fa855b0f
 	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
 	gopkg.in/yaml.v2 v2.2.2
 )
