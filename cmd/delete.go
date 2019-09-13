@@ -49,8 +49,9 @@ var deleteCmd = &cobra.Command{
 		switches := utils.ParseSwitch(cfgFile)
 		// remove container and netns
 		if apion {
+			c := api.NewContainer(ctx, cli)
 			for _, node := range nodes {
-				api.RemoveNs(ctx, cli, node.Name)
+				c.RemoveNs(node.Name)
 			}
 			for _, s := range switches {
 				api.RemoveBr(s.Name)

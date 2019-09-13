@@ -29,7 +29,21 @@ type Component struct {
 	Container string `json:"container"`
 }
 
-func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
+type Container struct {
+	Ctx context.Context
+	Cli *client.Client
+}
+
+func NewContainer(ctx context.Context, cli *client.Client) *Container {
+	container := &Container{
+		Ctx: ctx,
+		Cli: cli,
+	}
+
+	return container
+}
+
+func (c *Container) Pull(nodes []utils.Node) error {
 
 	for _, node := range nodes {
 
@@ -37,10 +51,9 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 		imageName = "docker.io/" + imageName
 		fmt.Println(imageName)
 
-		containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+		containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{})
 		if err != nil {
-			fmt.Printf("Failed to Get Container List: %v\n", err)
-			os.Exit(1)
+			return err
 		}
 
 		var containerNames []string
@@ -68,14 +81,13 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 			if exist {
 				fmt.Printf("%s already created!\n", node.Name)
 			} else {
-				out, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
+				out, err := c.Cli.ImagePull(c.Ctx, imageName, types.ImagePullOptions{})
 				if err != nil {
-					fmt.Printf("Failed to Pull Image: %v\n", err)
-					os.Exit(1)
+					return err
 				}
 				io.Copy(os.Stdout, out)
 
-				resp, err := cli.ContainerCreate(ctx,
+				resp, err := c.Cli.ContainerCreate(c.Ctx,
 					&container.Config{
 						Image:    imageName,
 						Hostname: node.Name,
@@ -88,24 +100,21 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 						Binds:       volumes,
 					}, nil, node.Name)
 				if err != nil {
-					fmt.Printf("Failed to Create Container: %v\n", err)
-					os.Exit(1)
+					return err
 				}
 
-				if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-					fmt.Printf("Failed to Start Container: %v\n", err)
-					os.Exit(1)
+				if err := c.Cli.ContainerStart(c.Ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+					return err
 				}
 			}
 		} else {
-			out, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
+			out, err := c.Cli.ImagePull(c.Ctx, imageName, types.ImagePullOptions{})
 			if err != nil {
-				fmt.Printf("Failed to Pull Image: %v\n", err)
-				os.Exit(1)
+				return err
 			}
 			io.Copy(os.Stdout, out)
 
-			resp, err := cli.ContainerCreate(ctx,
+			resp, err := c.Cli.ContainerCreate(c.Ctx,
 				&container.Config{
 					Image:    imageName,
 					Tty:      true,
@@ -118,45 +127,39 @@ func Pull(ctx context.Context, cli *client.Client, nodes []utils.Node) {
 					Binds:       volumes,
 				}, nil, node.Name)
 			if err != nil {
-				fmt.Printf("Failed to Create Container: %v\n", err)
-				os.Exit(1)
+				return err
 			}
 
-			if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-				fmt.Printf("Failed to Start Container: %v\n", err)
-				os.Exit(1)
+			if err := c.Cli.ContainerStart(c.Ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+				return err
 			}
 		}
-
 	}
+	return nil
 }
 
-func Dockertonetns(ctx context.Context, cli *client.Client, nodename string) {
+func (c *Container) Dockertonetns(nodename string) error {
 
-	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{})
 	if err != nil {
-		fmt.Printf("Failed to Get Container List: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 
 	var pid string
-
 	var containerName string
 
 	for _, container := range containers {
 		containerName = strings.Replace(container.Names[0], "/", "", 1)
 		if nodename == containerName {
-			json, err := cli.ContainerInspect(ctx, container.ID)
+			json, err := c.Cli.ContainerInspect(c.Ctx, container.ID)
 			if err != nil {
-				fmt.Printf("Failed to Inspect Container: %v\n", err)
-				os.Exit(1)
+				return err
 			}
 			pid = strconv.Itoa(json.State.Pid)
 
 			fmt.Printf("Image: %s, ID: %s, Name: %s, PID: %s\n", container.Image, container.ID, containerName, pid)
 			if _, err := os.Stat("/proc/" + pid); err != nil {
-				fmt.Printf("Not Found /proc/ %s: %v\n", pid, err)
-				os.Exit(1)
+				return err
 			}
 			fmt.Printf("/proc/" + pid + "is Exist\n")
 			dockerns := fmt.Sprintf("/proc/%s/ns/net", pid)
@@ -164,8 +167,7 @@ func Dockertonetns(ctx context.Context, cli *client.Client, nodename string) {
 			if _, err := os.Stat("/var/run/netns"); os.IsNotExist(err) {
 				// path/to/whatever does not exist
 				if err := os.MkdirAll("/var/run/netns", 0755); err != nil {
-					fmt.Printf("Failed to Make Dir /var/run/netns: %v\n", err)
-					os.Exit(1)
+					return err
 				}
 
 			}
@@ -173,15 +175,16 @@ func Dockertonetns(ctx context.Context, cli *client.Client, nodename string) {
 
 			if _, err := os.Stat(netns); os.IsNotExist(err) {
 				if err := os.Symlink(dockerns, netns); err != nil {
-					fmt.Printf("Failed to symlink %s -> %s: %v", dockerns, netns, err)
-					os.Exit(1)
+					return err
 				}
 			}
 		}
 	}
+
+	return nil
 }
 
-func SetBridge(node utils.Node, inf utils.Interface) {
+func SetBridge(node utils.Node, inf utils.Interface) error {
 	bridge := &netlink.Bridge{LinkAttrs: netlink.LinkAttrs{Name: inf.PeerNode, Flags: net.FlagUp, MTU: 1500}}
 
 	netlink.LinkAdd(bridge)
@@ -196,8 +199,7 @@ func SetBridge(node utils.Node, inf utils.Interface) {
 
 	pid1, err := utils.ParsePid(node1path)
 	if err != nil {
-		fmt.Printf("Failed to utils.ParsePid: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 	veth := &netlink.Veth{
 		LinkAttrs: netlink.LinkAttrs{
@@ -214,11 +216,11 @@ func SetBridge(node utils.Node, inf utils.Interface) {
 	fmt.Println("vethname: ", veth.LinkAttrs.Name)
 	link1, err := netlink.LinkByName(veth.LinkAttrs.Name)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	peerlink1, err := netlink.LinkByName(veth.PeerName)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// set
@@ -227,13 +229,12 @@ func SetBridge(node utils.Node, inf utils.Interface) {
 	}
 
 	if err := netlink.LinkSetMaster(peerlink1, bridge); err != nil {
-		panic(err)
+		return err
 	}
 
 	vethNS1, err := ns.GetNS(node1path)
 	if err != nil {
-		fmt.Printf("Failed to get NS %s: %v\n", node1path, err)
-		os.Exit(1)
+		return err
 	}
 	defer vethNS1.Close()
 
@@ -290,11 +291,13 @@ func SetBridge(node utils.Node, inf utils.Interface) {
 	})
 
 	if err != nil {
-		fmt.Printf("Failed to Configure NS: %v\n", err)
+		return err
 	}
+
+	return nil
 }
 
-func SetLink(node utils.Node, inf utils.Interface) {
+func SetLink(node utils.Node, inf utils.Interface) error {
 	node1 := node.Name
 	name := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
 	peername := fmt.Sprintf("%s-%s", inf.PeerNode, inf.PeerInf)
@@ -305,8 +308,7 @@ func SetLink(node utils.Node, inf utils.Interface) {
 
 	pid1, err := utils.ParsePid(node1path)
 	if err != nil {
-		fmt.Printf("Failed to utils.ParsePid: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 
 	veth := &netlink.Veth{
@@ -324,8 +326,7 @@ func SetLink(node utils.Node, inf utils.Interface) {
 
 	link1, err := netlink.LinkByName(veth.LinkAttrs.Name)
 	if err != nil {
-		fmt.Printf("Not Found Link: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 
 	// set link
@@ -335,8 +336,7 @@ func SetLink(node utils.Node, inf utils.Interface) {
 
 	vethNS1, err := ns.GetNS(node1path)
 	if err != nil {
-		fmt.Printf("Failed to get NS %s: %v\n", node1path, err)
-		os.Exit(1)
+		return err
 	}
 	defer vethNS1.Close()
 
@@ -393,37 +393,47 @@ func SetLink(node utils.Node, inf utils.Interface) {
 	})
 
 	if err != nil {
-		fmt.Printf("Failed to Configure NS: %v\n", err)
+		return err
 	}
+
+	return nil
 }
 
-func LinkUp(linkname string) {
+func LinkUp(linkname string) error {
 	link, err := netlink.LinkByName(linkname)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	if err := netlink.LinkSetUp(link); err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
-func SetConf(ctx context.Context, cli *client.Client, container_name string, cmd string) {
+func (c *Container) SetConf(container_name string, cmd string) error {
 
-	var runcmd []string
-
-	if strings.Contains(cmd, "vtysh") {
-		for i, str := range strings.Split(cmd, " -c ") {
-			if i != 0 {
-				runcmd = append(runcmd, "-c")
-			}
-			str = strings.Replace(str, "\"", "", -1)
-			runcmd = append(runcmd, str)
+	// convert command for docekr exec
+	split_cmds := strings.Split(cmd, " ")
+	var runcmd string
+	var runcmds []string
+	for _, split_cmd := range split_cmds {
+		if strings.HasPrefix(split_cmd, "\"") {
+			runcmd = strings.TrimLeft(split_cmd, "\"")
+		} else if strings.HasSuffix(split_cmd, "\"") {
+			runcmd += " " + strings.TrimRight(split_cmd, "\"")
+			runcmds = append(runcmds, runcmd)
+			runcmd = ""
+		} else if len(runcmd) > 0 {
+			runcmd += " " + split_cmd
+		} else {
+			runcmd = split_cmd
+			runcmds = append(runcmds, runcmd)
+			runcmd = ""
 		}
-	} else {
-		runcmd = strings.Split(cmd, " ")
 	}
 
-	idreq, err := cli.ContainerExecCreate(ctx, container_name, types.ExecConfig{
+	idreq, err := c.Cli.ContainerExecCreate(c.Ctx, container_name, types.ExecConfig{
 		User:         "root",
 		Privileged:   true,
 		Tty:          true,
@@ -431,59 +441,60 @@ func SetConf(ctx context.Context, cli *client.Client, container_name string, cmd
 		AttachStdin:  true,
 		AttachStderr: true,
 		AttachStdout: true,
-		Cmd:          runcmd,
+		Cmd:          runcmds,
 	})
 	//
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	if err := cli.ContainerExecStart(ctx, idreq.ID, types.ExecStartCheck{
+	if err := c.Cli.ContainerExecStart(c.Ctx, idreq.ID, types.ExecStartCheck{
 		Detach: false,
 		Tty:    true,
 	}); err != nil {
-		panic(err)
+		return err
 	}
 
+	return nil
 }
 
-func RemoveNs(ctx context.Context, cli *client.Client, nodename string) {
+func (c *Container) RemoveNs(nodename string) error {
 	path := "/var/run/netns/"
 	nodepath := path + nodename
 	if err := os.Remove(nodepath); err != nil {
-		fmt.Printf("Failed to Remove %s: %v\n", nodepath, err)
-		os.Exit(1)
+		return err
 	}
-	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{})
 	if err != nil {
-		fmt.Printf("Failed to Get ContainerList: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 
 	for _, container := range containers {
 		fmt.Println(container.ID)
 		containerName := strings.Replace(container.Names[0], "/", "", 1)
 		if nodename == containerName {
-			if err := cli.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{Force: true}); err != nil {
-				fmt.Printf("Failed to Remove Container %s: %v\n", containerName, err)
-				os.Exit(1)
+			if err := c.Cli.ContainerRemove(c.Ctx, container.ID, types.ContainerRemoveOptions{Force: true}); err != nil {
+				return err
 			}
 		}
 	}
+
+	return nil
 }
 
-func RemoveBr(bridgeName string) {
+func RemoveBr(bridgeName string) error {
 	br, err := netlink.LinkByName(bridgeName)
 	if err != nil {
-		fmt.Printf("Not Found Link: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 	if err := netlink.LinkDel(br); err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
-func StatusNs(ctx context.Context, cli *client.Client, nodename string) string {
+func (c *Container) StatusNs(nodename string) (string, error) {
 	path := "/var/run/netns/"
 	nodepath := path + nodename
 	var status Status
@@ -497,9 +508,9 @@ func StatusNs(ctx context.Context, cli *client.Client, nodename string) string {
 		status.Name = nodename
 		status.Status.Ns = "Found"
 	}
-	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{})
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	if len(containers) == 0 {
 		// fmt.Printf("Container:\t%s\t\tNot Found\n", nodename)
@@ -517,32 +528,5 @@ func StatusNs(ctx context.Context, cli *client.Client, nodename string) string {
 	jsonbyte, _ := json.Marshal(status)
 	jsonstring := string(jsonbyte)
 
-	return jsonstring
+	return jsonstring, nil
 }
-
-// func main() {
-// 	ctx := context.Background()
-// 	cli, err := client.NewEnvClient()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-//
-// 	nodes := utils.ParseYaml("./config.yaml.bk2")
-//
-// 	Pull(ctx, cli, nodes)
-//
-// 	for _, node := range nodes {
-// 		Dockertonetns(ctx, cli, node.Name)
-// 	}
-// 	for _, node := range nodes {
-// 		fmt.Println(node.Interface)
-// 		for _, inf := range node.Interface {
-// 			SetLink(node, inf)
-// 		}
-// 	}
-//
-// 	// remove container and netns
-// 	// for _, node := range nodes {
-// 	// 	RemoveNs(ctx, cli, node.Name)
-// 	// }
-// }

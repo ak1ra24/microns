@@ -49,10 +49,12 @@ var createCmd = &cobra.Command{
 		switches := utils.ParseSwitch(cfgFile)
 
 		if apion {
-			api.Pull(ctx, cli, nodes)
+			c := api.NewContainer(ctx, cli)
+
+			c.Pull(nodes)
 
 			for _, node := range nodes {
-				api.Dockertonetns(ctx, cli, node.Name)
+				c.Dockertonetns(node.Name)
 			}
 			for _, node := range nodes {
 				fmt.Println(node.Interface)
@@ -67,7 +69,7 @@ var createCmd = &cobra.Command{
 
 			for _, config := range configs {
 				for _, cmd := range config.Cmds {
-					api.SetConf(ctx, cli, config.Name, cmd.Cmd)
+					c.SetConf(config.Name, cmd.Cmd)
 				}
 			}
 

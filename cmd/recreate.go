@@ -51,16 +51,19 @@ var recreateCmd = &cobra.Command{
 		configs := utils.ParseConfig(cfgFile)
 		// remove container and netns
 		if apion {
+			c := api.NewContainer(ctx, cli)
 			for _, node := range nodes {
-				api.RemoveNs(ctx, cli, node.Name)
+				c.RemoveNs(node.Name)
 			}
+
 			fmt.Println("Success Delete microns!")
 			fmt.Println("Waiting for 10 Seconds")
 			time.Sleep(10 * time.Second)
-			api.Pull(ctx, cli, nodes)
+
+			c.Pull(nodes)
 
 			for _, node := range nodes {
-				api.Dockertonetns(ctx, cli, node.Name)
+				c.Dockertonetns(node.Name)
 			}
 			for _, node := range nodes {
 				fmt.Println(node.Interface)

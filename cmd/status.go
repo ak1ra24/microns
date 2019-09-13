@@ -45,8 +45,12 @@ var statusCmd = &cobra.Command{
 
 		nodes := utils.ParseNodes(cfgFile)
 
+		c := api.NewContainer(ctx, cli)
 		for _, node := range nodes {
-			status := api.StatusNs(ctx, cli, node.Name)
+			status, err := c.StatusNs(node.Name)
+			if err != nil {
+				fmt.Printf("Couldn't get status: %s\n", err)
+			}
 			fmt.Println(status)
 		}
 		return nil
