@@ -18,7 +18,7 @@ before_scripts:
 
 script:
   - sudo -E env "PATH=$PATH" go test -v ./api
-  - goverage -coverprofile=coverage.txt ./api
+  - sudo -E env "PATH=$PATH" goverage -coverprofile=coverage.txt ./api
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

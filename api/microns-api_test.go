@@ -48,6 +48,10 @@ func TestDockertonetnsAddDel(t *testing.T) {
 	node02 := utils.Node{Name: "node02", Image: "akiranet24/frr:1.0", Interface: []utils.Interface{inf02}}
 	nodes := []utils.Node{node01, node02}
 
+	if err := c.Pull(nodes); err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+
 	for _, node := range nodes {
 		if err = c.Dockertonetns(node.Name); err != nil {
 			t.Fatalf("failed test %#v", err)
@@ -103,7 +107,7 @@ func TestLinkAddDel(t *testing.T) {
 }
 
 // TestSetConfAddDel
-func TestSetConfSuccess(t *testing.T) {
+func TestSetConfAddDel(t *testing.T) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
