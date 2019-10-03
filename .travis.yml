@@ -9,4 +9,4 @@ env:
     - GO111MODULE=on
 
 script:
-  - sudo go test -v ./api
+  - sudo -E env "PATH=$PATH" go test -v ./api
