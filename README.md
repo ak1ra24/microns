@@ -1,4 +1,4 @@
-## MicroNS
+## MicroNS [![Go Report Card](https://goreportcard.com/badge/github.com/ak1ra24/microns)](https://goreportcard.com/report/github.com/ak1ra24/microns)
 Dockerを用いたルーティングシュミレーション
 
 ## Prerequisites
