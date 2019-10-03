@@ -19,4 +19,4 @@ before_script:
   - golint ./... | xargs -r false
 
 script:
-  - go test -v
+  - go test -v ./api
