@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// ParsePid func is Parse Docker pid
 func ParsePid(path string) (int, error) {
 	fileinfo, err := os.Lstat(path)
 
@@ -14,10 +15,10 @@ func ParsePid(path string) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-		str_pid := strings.Replace(originfile, "/proc/", "", 1)
-		str_pid = strings.Replace(str_pid, "/ns/net", "", 1)
+		strPid := strings.Replace(originfile, "/proc/", "", 1)
+		strPid = strings.Replace(strPid, "/ns/net", "", 1)
 
-		pid, err := strconv.Atoi(str_pid)
+		pid, err := strconv.Atoi(strPid)
 		if err != nil {
 			return 0, err
 		}

@@ -9,6 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// Convert tinet config to microns config
 func Convert(tncfg, mncfg string) error {
 	var tn utils.Tn
 	mn := new(utils.Microns)
@@ -96,7 +97,7 @@ func Convert(tncfg, mncfg string) error {
 		mn.Test = append(mn.Test, testCmd)
 	}
 
-	mncfg_output, err := yaml.Marshal(&mn)
+	mncfgOutput, err := yaml.Marshal(&mn)
 	if err != nil {
 		return err
 	}
@@ -107,7 +108,7 @@ func Convert(tncfg, mncfg string) error {
 	}
 	defer file.Close()
 
-	file.Write(mncfg_output)
+	file.Write(mncfgOutput)
 
 	return nil
 }

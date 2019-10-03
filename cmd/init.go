@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package cmd is microns command line tools
 package cmd
 
 import (
@@ -33,8 +35,8 @@ var initCmd = &cobra.Command{
 			fmt.Println("Must Set CONFIG YAML NAME to CREATE FILE")
 			os.Exit(1)
 		}
-		conf_template := utils.CreateCfgFile(cfgFile)
-		fmt.Println(conf_template)
+		confTemplate := utils.CreateCfgFile(cfgFile)
+		fmt.Println(confTemplate)
 
 		return nil
 	},

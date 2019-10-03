@@ -19,21 +19,25 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Status struct is Container and Netns status
 type Status struct {
 	Name   string    `json:"name"`
 	Status Component `json:"status"`
 }
 
+// Component for microns status
 type Component struct {
 	Ns        string `json:"ns"`
 	Container string `json:"container"`
 }
 
+// Container Operation struct
 type Container struct {
 	Ctx context.Context
 	Cli *client.Client
 }
 
+// NewContainer func is Create Container Client
 func NewContainer(ctx context.Context, cli *client.Client) *Container {
 	container := &Container{
 		Ctx: ctx,
@@ -43,6 +47,7 @@ func NewContainer(ctx context.Context, cli *client.Client) *Container {
 	return container
 }
 
+// Pull and Create Docker Container from config and Set Option for sysctl and volume
 func (c *Container) Pull(nodes []utils.Node) error {
 
 	for _, node := range nodes {
@@ -138,6 +143,7 @@ func (c *Container) Pull(nodes []utils.Node) error {
 	return nil
 }
 
+// Dockertonetns is Mount Docker network namespace tp network namespace
 func (c *Container) Dockertonetns(nodename string) error {
 
 	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{})
@@ -184,6 +190,7 @@ func (c *Container) Dockertonetns(nodename string) error {
 	return nil
 }
 
+// SetBridge is Create Linux Bridge, and Link Bridge and Veth, and Set ip address to interface
 func SetBridge(node utils.Node, inf utils.Interface) error {
 	bridge := &netlink.Bridge{LinkAttrs: netlink.LinkAttrs{Name: inf.PeerNode, Flags: net.FlagUp, MTU: 1500}}
 
@@ -253,10 +260,10 @@ func SetBridge(node utils.Node, inf utils.Interface) error {
 		}
 
 		if inf.Ipv4 != "" {
-			inf_val := strings.Split(inf.Ipv4, "/")
-			ipv4addr := inf_val[0]
-			mask_str := inf_val[1]
-			mask, _ := strconv.Atoi(mask_str)
+			infVal := strings.Split(inf.Ipv4, "/")
+			ipv4addr := infVal[0]
+			maskStr := infVal[1]
+			mask, _ := strconv.Atoi(maskStr)
 			ip := net.IPNet{IP: net.ParseIP(ipv4addr), Mask: net.CIDRMask(mask, 32)}
 
 			addr := &netlink.Addr{IPNet: &ip, Label: ""}
@@ -274,10 +281,10 @@ func SetBridge(node utils.Node, inf utils.Interface) error {
 			if _, err := sysctl.Sysctl(ipv6SysctlDefault, "0"); err != nil {
 				return fmt.Errorf("failed to set ipv6.disable to 0 : %v", err)
 			}
-			inf_val := strings.Split(inf.Ipv6, "/")
-			ipv6addr := inf_val[0]
-			mask_str := inf_val[1]
-			mask, _ := strconv.Atoi(mask_str)
+			infVal := strings.Split(inf.Ipv6, "/")
+			ipv6addr := infVal[0]
+			maskStr := infVal[1]
+			mask, _ := strconv.Atoi(maskStr)
 			ip := net.IPNet{IP: net.ParseIP(ipv6addr), Mask: net.CIDRMask(mask, 128)}
 
 			addr := &netlink.Addr{IPNet: &ip, Label: ""}
@@ -297,6 +304,7 @@ func SetBridge(node utils.Node, inf utils.Interface) error {
 	return nil
 }
 
+// SetLink is Link Node interface and Other Node interface, and Set ip address to interface
 func SetLink(node utils.Node, inf utils.Interface) error {
 	node1 := node.Name
 	name := fmt.Sprintf("%s-%s", node.Name, inf.InfName)
@@ -355,10 +363,10 @@ func SetLink(node utils.Node, inf utils.Interface) error {
 		}
 
 		if inf.Ipv4 != "" {
-			inf_val := strings.Split(inf.Ipv4, "/")
-			ipv4addr := inf_val[0]
-			mask_str := inf_val[1]
-			mask, _ := strconv.Atoi(mask_str)
+			infVal := strings.Split(inf.Ipv4, "/")
+			ipv4addr := infVal[0]
+			maskStr := infVal[1]
+			mask, _ := strconv.Atoi(maskStr)
 			ip := net.IPNet{IP: net.ParseIP(ipv4addr), Mask: net.CIDRMask(mask, 32)}
 
 			addr := &netlink.Addr{IPNet: &ip, Label: ""}
@@ -376,10 +384,10 @@ func SetLink(node utils.Node, inf utils.Interface) error {
 			if _, err := sysctl.Sysctl(ipv6SysctlDefault, "0"); err != nil {
 				return fmt.Errorf("failed to set ipv6.disable to 0 : %v", err)
 			}
-			inf_val := strings.Split(inf.Ipv6, "/")
-			ipv6addr := inf_val[0]
-			mask_str := inf_val[1]
-			mask, _ := strconv.Atoi(mask_str)
+			infVal := strings.Split(inf.Ipv6, "/")
+			ipv6addr := infVal[0]
+			maskStr := infVal[1]
+			mask, _ := strconv.Atoi(maskStr)
 			ip := net.IPNet{IP: net.ParseIP(ipv6addr), Mask: net.CIDRMask(mask, 128)}
 
 			addr := &netlink.Addr{IPNet: &ip, Label: ""}
@@ -399,6 +407,7 @@ func SetLink(node utils.Node, inf utils.Interface) error {
 	return nil
 }
 
+// LinkUp is Link up to interface
 func LinkUp(linkname string) error {
 	link, err := netlink.LinkByName(linkname)
 	if err != nil {
@@ -411,29 +420,30 @@ func LinkUp(linkname string) error {
 	return nil
 }
 
-func (c *Container) SetConf(container_name string, cmd string) error {
+// SetConf is Set config from config
+func (c *Container) SetConf(containerName string, cmd string) error {
 
 	// convert command for docekr exec
-	split_cmds := strings.Split(cmd, " ")
+	splitCmds := strings.Split(cmd, " ")
 	var runcmd string
 	var runcmds []string
-	for _, split_cmd := range split_cmds {
-		if strings.HasPrefix(split_cmd, "\"") {
-			runcmd = strings.TrimLeft(split_cmd, "\"")
-		} else if strings.HasSuffix(split_cmd, "\"") {
-			runcmd += " " + strings.TrimRight(split_cmd, "\"")
+	for _, splitCmd := range splitCmds {
+		if strings.HasPrefix(splitCmd, "\"") {
+			runcmd = strings.TrimLeft(splitCmd, "\"")
+		} else if strings.HasSuffix(splitCmd, "\"") {
+			runcmd += " " + strings.TrimRight(splitCmd, "\"")
 			runcmds = append(runcmds, runcmd)
 			runcmd = ""
 		} else if len(runcmd) > 0 {
-			runcmd += " " + split_cmd
+			runcmd += " " + splitCmd
 		} else {
-			runcmd = split_cmd
+			runcmd = splitCmd
 			runcmds = append(runcmds, runcmd)
 			runcmd = ""
 		}
 	}
 
-	idreq, err := c.Cli.ContainerExecCreate(c.Ctx, container_name, types.ExecConfig{
+	idreq, err := c.Cli.ContainerExecCreate(c.Ctx, containerName, types.ExecConfig{
 		User:         "root",
 		Privileged:   true,
 		Tty:          true,
@@ -458,6 +468,7 @@ func (c *Container) SetConf(container_name string, cmd string) error {
 	return nil
 }
 
+// RemoveNs is Remove Docker Container, and Remove Network Namespace
 func (c *Container) RemoveNs(nodename string) error {
 	path := "/var/run/netns/"
 	nodepath := path + nodename
@@ -482,6 +493,7 @@ func (c *Container) RemoveNs(nodename string) error {
 	return nil
 }
 
+// RemoveBr is Remove Linux Bridge
 func RemoveBr(bridgeName string) error {
 	br, err := netlink.LinkByName(bridgeName)
 	if err != nil {
@@ -494,6 +506,7 @@ func RemoveBr(bridgeName string) error {
 	return nil
 }
 
+// StatusNs is Status of containers and ns made with microns
 func (c *Container) StatusNs(nodename string) (string, error) {
 	path := "/var/run/netns/"
 	nodepath := path + nodename

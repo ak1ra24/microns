@@ -137,17 +137,17 @@ func TestSetConfSuccess(t *testing.T) {
 		}
 	}
 
-	node01_cmd := []utils.Cmd{
+	node01Cmd := []utils.Cmd{
 		utils.Cmd{Cmd: "/etc/init.d/frr start"},
 		utils.Cmd{Cmd: "vtysh -c 'conf t' -c 'router bgp 100' -c 'bgp router-id 1.1.1.1' -c 'neighbor 192.168.0.2 remote-as 200'"},
 	}
-	node01_config := utils.Nodeconfig{Name: "node01", Cmds: node01_cmd}
-	node02_cmd := []utils.Cmd{
+	node01Config := utils.Nodeconfig{Name: "node01", Cmds: node01Cmd}
+	node02Cmd := []utils.Cmd{
 		utils.Cmd{Cmd: "/etc/init.d/frr start"},
 		utils.Cmd{Cmd: "vtysh -c 'conf t' -c 'router bgp 200' -c 'bgp router-id 2.2.2.2' -c 'neighbor 192.168.0.1 remote-as 1000'"},
 	}
-	node02_config := utils.Nodeconfig{Name: "node02", Cmds: node02_cmd}
-	configs := []utils.Nodeconfig{node01_config, node02_config}
+	node02Config := utils.Nodeconfig{Name: "node02", Cmds: node02Cmd}
+	configs := []utils.Nodeconfig{node01Config, node02Config}
 
 	for _, config := range configs {
 		for _, cmd := range config.Cmds {

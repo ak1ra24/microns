@@ -7,10 +7,10 @@ import (
 	"github.com/ak1ra24/microns/utils"
 )
 
-// func RunContainer(nodename, imagename string) string {
+// RunContainer func is Output docker run command
 func RunContainer(node utils.Node) string {
 
-	check_container := `
+	checkContainer := `
 if docker container ls | grep %s > /dev/null 2>&1; then
 	echo Container:%s is Exist
 else
@@ -33,7 +33,7 @@ fi
 			}
 		}
 		runcmd += fmt.Sprintf(" %s", node.Image)
-		CheckandRuncmd = fmt.Sprintf(check_container, node.Name, node.Name, runcmd)
+		CheckandRuncmd = fmt.Sprintf(checkContainer, node.Name, node.Name, runcmd)
 	} else {
 		runcmd = fmt.Sprintf("docker run -td --rm --net=none --privileged --name %s --hostname %s", node.Name, node.Name)
 		if len(node.Volumes) != 0 {
@@ -43,18 +43,20 @@ fi
 			}
 		}
 		runcmd += fmt.Sprintf(" %s", node.Image)
-		CheckandRuncmd = fmt.Sprintf(check_container, node.Name, node.Name, runcmd)
+		CheckandRuncmd = fmt.Sprintf(checkContainer, node.Name, node.Name, runcmd)
 	}
 
 	return CheckandRuncmd
 }
 
+// GetContainerPid func is Output get Docker PID Command
 func GetContainerPid(nodename string) string {
 	getpidcmd := fmt.Sprintf("PID=`docker inspect %s --format '{{.State.Pid}}'`", nodename)
 
 	return getpidcmd
 }
 
+// SymlinkNstoContainer func is Output mount Docker network namespace to network namespace command
 func SymlinkNstoContainer(nodename string) string {
 	netns := fmt.Sprintf("/var/run/netns/%s", nodename)
 
@@ -71,22 +73,25 @@ func SymlinkNstoContainer(nodename string) string {
 	return symlinkcmd
 }
 
+// AddBr func is Output add linux bridge command
 func AddBr(bridge utils.Switch) string {
 	br := fmt.Sprintf("ip link add %s type bridge", bridge.Name)
 
 	return br
 }
 
+// LinkAdd func is Output connect node interface and other node interface
 func LinkAdd(node utils.Node, inf utils.Interface) (string, string) {
 	vethname := fmt.Sprintf("%s", inf.InfName)
 	peername := fmt.Sprintf("%s", inf.PeerInf)
 
-	check_link := "ip link add %s netns %s type veth peer name %s netns %s"
-	CheckandAddLinkcmd := fmt.Sprintf(check_link, vethname, node.Name, peername, inf.PeerNode)
+	checkLink := "ip link add %s netns %s type veth peer name %s netns %s"
+	CheckandAddLinkcmd := fmt.Sprintf(checkLink, vethname, node.Name, peername, inf.PeerNode)
 
 	return vethname, CheckandAddLinkcmd
 }
 
+// LinkAddBr func id Output connect ns and linux bridge command
 func LinkAddBr(bridges []utils.Switch, node utils.Node, inf utils.Interface) ([]string, string, string, string) {
 	var checklinks []string
 	var brlinkname string
@@ -106,27 +111,31 @@ func LinkAddBr(bridges []utils.Switch, node utils.Node, inf utils.Interface) ([]
 	return checklinks, brlinkname, brname, vethname
 }
 
+// LinkUpBridge func is Output link up linux bridge command
 func LinkUpBridge(brname string) string {
 
-	check_link_up_bridge := fmt.Sprintf("ip link set %s up", brname)
+	checkLinkUpBridge := fmt.Sprintf("ip link set %s up", brname)
 
-	return check_link_up_bridge
+	return checkLinkUpBridge
 }
 
+// LinkUpBrLink func is Output link up linux bridge link command
 func LinkUpBrLink(brlinkname string) string {
 
-	check_link_up_brlink := fmt.Sprintf("ip link set %s up", brlinkname)
+	checkLinkUpBrlink := fmt.Sprintf("ip link set %s up", brlinkname)
 
-	return check_link_up_brlink
+	return checkLinkUpBrlink
 }
 
+// LinkSetBridge func is Output link set linux bridge link to linux bridge command
 func LinkSetBridge(brlinkname, bridgename string) string {
 
-	check_set_br := fmt.Sprintf("ip link set dev %s master %s", brlinkname, bridgename)
+	checkSetBr := fmt.Sprintf("ip link set dev %s master %s", brlinkname, bridgename)
 
-	return check_set_br
+	return checkSetBr
 }
 
+// LinkSetNs func is Output link set link to ns command
 func LinkSetNs(vethname, nodename string) string {
 
 	setLinkNscmd := fmt.Sprintf("ip netns exec %s ip link set %s up", nodename, vethname)
@@ -134,6 +143,7 @@ func LinkSetNs(vethname, nodename string) string {
 	return setLinkNscmd
 }
 
+// AddrAddv4 func is Output set ip address v4 to ns
 func AddrAddv4(nodename, vethname string, inf utils.Interface) string {
 
 	addAddrcmd := fmt.Sprintf("ip netns exec %s ip addr add %s dev %s", nodename, inf.Ipv4, vethname)
@@ -141,6 +151,7 @@ func AddrAddv4(nodename, vethname string, inf utils.Interface) string {
 	return addAddrcmd
 }
 
+// AddrAddv6 func is Output set ip address v6 to ns
 func AddrAddv6(nodename, vethname string, inf utils.Interface) string {
 
 	addAddrcmd := fmt.Sprintf("ip netns exec %s ip -6 addr add %s dev %s", nodename, inf.Ipv6, vethname)
@@ -148,6 +159,7 @@ func AddrAddv6(nodename, vethname string, inf utils.Interface) string {
 	return addAddrcmd
 }
 
+// RunCmd func is Output configure cmds to docker container
 func RunCmd(config utils.Nodeconfig) []string {
 
 	var runcmds []string
@@ -159,24 +171,28 @@ func RunCmd(config utils.Nodeconfig) []string {
 	return runcmds
 }
 
+// NsDel func is Output delete to ns command
 func NsDel(nodename string) string {
 	delNscmd := fmt.Sprintf("ip netns delete %s", nodename)
 
 	return delNscmd
 }
 
+// DockerDel func is Output delete to docker container command
 func DockerDel(nodename string) string {
 	delDockercmd := fmt.Sprintf("docker rm -f %s", nodename)
 
 	return delDockercmd
 }
 
+// BridgeDel func is Output delete to linux bridge command
 func BridgeDel(brname string) string {
 	delBrCmd := fmt.Sprintf("ip link delete %s", brname)
 
 	return delBrCmd
 }
 
+// RunTestCmd func is Output testcmd
 func RunTestCmd(testcmds utils.TestCmd) []string {
 
 	var runtestcmds []string

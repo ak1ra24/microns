@@ -10,6 +10,7 @@ import (
 	"github.com/awalterschulze/gographviz"
 )
 
+// Graph func is Create Graphviz dot file
 func Graph(nodes []utils.Node, bridges []utils.Switch, filename string) {
 	g := gographviz.NewGraph()
 	if err := g.SetName("G"); err != nil {
@@ -40,7 +41,7 @@ func Graph(nodes []utils.Node, bridges []utils.Switch, filename string) {
 
 	var Nodes []string
 	var Links []string
-	var nodes_bridges []string
+	var nodesBridges []string
 
 	Link := make(map[string]string)
 	Addrv4 := make(map[string]string)
@@ -60,15 +61,15 @@ func Graph(nodes []utils.Node, bridges []utils.Switch, filename string) {
 			}
 			Link[link] = peer
 			Links = append(Links, link)
-			nodes_bridges = append(nodes_bridges, node.Name)
+			nodesBridges = append(nodesBridges, node.Name)
 		}
 	}
 
 	for _, bridge := range bridges {
-		nodes_bridges = append(nodes_bridges, bridge.Name)
+		nodesBridges = append(nodesBridges, bridge.Name)
 	}
 
-	for _, Node := range nodes_bridges {
+	for _, Node := range nodesBridges {
 		if err := g.AddNode("G", Node, nodeAttrs); err != nil {
 			panic(err)
 		}
@@ -121,6 +122,7 @@ func Graph(nodes []utils.Node, bridges []utils.Switch, filename string) {
 	file.Write([]byte(s))
 }
 
+// DottoPng func is Convert from dot file to png file
 func DottoPng(filename string) {
 	dotfile := filename + ".dot"
 	pngfile := filename + ".png"

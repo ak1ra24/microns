@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package cmd is microns command line tools
 package cmd
 
 import (
@@ -68,8 +70,8 @@ var deleteCmd = &cobra.Command{
 			for _, s := range switches {
 				delBridge := shell.BridgeDel(s.Name)
 				fmt.Println(delBridge)
-				result_Bridge := fmt.Sprintf("Delete Bridge %s", s.Name)
-				fmt.Println(fmt.Sprintf("echo %s", result_Bridge))
+				resultBridge := fmt.Sprintf("Delete Bridge %s", s.Name)
+				fmt.Println(fmt.Sprintf("echo %s", resultBridge))
 			}
 			fmt.Println("echo 'Success Delete microns!'")
 		}

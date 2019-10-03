@@ -8,5 +8,17 @@ env:
   global:
     - GO111MODULE=on
 
+install:
+  - go get -u golang.org/x/lint/golint
+  - go get github.com/haya14busa/goverage
+
+before_scripts:
+  - go vet ./...
+  - golint ./... | xargs -r false
+
 script:
   - sudo -E env "PATH=$PATH" go test -v ./api
+  - goverage -coverprofile=coverage.txt ./api
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

@@ -7,6 +7,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// Tn struct is Tinet Config
 type Tn struct {
 	Nodes []struct {
 		Name       string `yaml:"name"`
@@ -35,12 +36,14 @@ type Tn struct {
 	} `yaml:"test"`
 }
 
+// TnInterface struct is Tinet Interface config struct
 type TnInterface struct {
 	Name string `yaml:"name"`
 	Type string `yaml:"type"`
 	Args string `yaml:"args"`
 }
 
+// Microns struct is Microns config struct
 type Microns struct {
 	Nodes       []Node       `yaml:"nodes"`
 	Switches    []Switch     `yaml:"switches"`
@@ -48,10 +51,12 @@ type Microns struct {
 	Test        []TestCmd    `yaml:"test"`
 }
 
+// Nodes struct is Microns Nodes
 type Nodes struct {
 	Nodes []Node `yaml:"nodes"`
 }
 
+// Node struct is Node config
 type Node struct {
 	Name      string      `yaml:"name"`
 	Image     string      `yaml:"image"`
@@ -60,24 +65,29 @@ type Node struct {
 	Sysctls   []Sysctl    `yaml:"sysctls"`
 }
 
+// Config struct is many NodeConfigs
 type Config struct {
 	Config []Nodeconfig `yaml:"node_config"`
 }
 
+// Nodeconfig struct is Set NodeName and config Command
 type Nodeconfig struct {
 	Name string `yaml:"name"`
 	Cmds []Cmd  `yaml:"cmds"`
 }
 
+// Test struct is many testcmds
 type Test struct {
 	Testcmds []TestCmd `yaml:"test"`
 }
 
+// TestCmd struct is Set NodeName and test command
 type TestCmd struct {
 	Name string `yaml:"name"`
 	Cmds []Cmd  `yaml:"cmds"`
 }
 
+// Interface struct is Interface Config
 type Interface struct {
 	InfName  string `yaml:"inf"`
 	Type     string `yaml:"type"`
@@ -87,28 +97,34 @@ type Interface struct {
 	PeerInf  string `yaml:"peerinf"`
 }
 
+// Sysctl struct is configure sysctl for docker container
 type Sysctl struct {
 	Sysctl string `yaml:"sysctl"`
 }
 
+// Cmd struct is command
 type Cmd struct {
 	Cmd string `yaml:"cmd"`
 }
 
+// Volume struct is Mount to Docker Settings
 type Volume struct {
 	HostVolume      string `yaml:"hostvolume"`
 	ContainerVolume string `yaml:"containervolume"`
 }
 
+// Switches struct is Bridge Settings
 type Switches struct {
 	Switches []Switch `yaml:"switches"`
 }
 
+// Switch struct is BridgeName and Interface settings
 type Switch struct {
 	Name       string      `yaml:"name"`
 	Interfaces []Interface `yaml:"interfaces"`
 }
 
+// ParseNodes func is parse nodes from microns config yaml file
 func ParseNodes(filepath string) []Node {
 	buf, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -125,6 +141,7 @@ func ParseNodes(filepath string) []Node {
 	return nodes.Nodes
 }
 
+// ParseSwitch func is parse switches from microns config yaml file
 func ParseSwitch(filepath string) []Switch {
 	buf, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -141,6 +158,7 @@ func ParseSwitch(filepath string) []Switch {
 	return switches.Switches
 }
 
+// ParseConfig func is parse node config from microns config yaml file
 func ParseConfig(filepath string) []Nodeconfig {
 	buf, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -157,6 +175,7 @@ func ParseConfig(filepath string) []Nodeconfig {
 	return nodeconfigs.Config
 }
 
+// ParseTest func is parse testcmds from microns config yaml file
 func ParseTest(filepath string) []TestCmd {
 	buf, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -172,6 +191,7 @@ func ParseTest(filepath string) []TestCmd {
 	return tests.Testcmds
 }
 
+// CreateCfgFile func is Create Template config yaml file
 func CreateCfgFile(filename string) string {
 	conf := `
 nodes:
