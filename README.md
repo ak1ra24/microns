@@ -1,12 +1,17 @@
-# MicroNS 
-[![Build Status](https://travis-ci.com/ak1ra24/microns.svg?branch=master)](https://travis-ci.com/ak1ra24/microns) [![Go Report Card](https://goreportcard.com/badge/github.com/ak1ra24/microns)](https://goreportcard.com/report/github.com/ak1ra24/microns) [![codecov](https://codecov.io/gh/ak1ra24/microns/branch/master/graph/badge.svg)](https://codecov.io/gh/ak1ra24/microns)
-Dockerを用いたルーティングシュミレーション
+# MicroNS
+
+[![Build Status](https://travis-ci.com/ak1ra24/microns.svg?branch=master)](https://travis-ci.com/ak1ra24/microns) [![Go Report Card](https://goreportcard.com/badge/github.com/ak1ra24/microns)](https://goreportcard.com/report/github.com/ak1ra24/microns) [![codecov](https://codecov.io/gh/ak1ra24/microns/branch/master/graph/badge.svg)](https://codecov.io/gh/ak1ra24/microns) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+Docker を用いたルーティングシュミレーション
 
 ## Prerequisites
 
 ### For Example
+
 Ubuntu18.04
-* Docker Install
+
+- Docker Install
+
 ```
 sudo apt-get update
 sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
@@ -15,7 +20,9 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt-get update
 sudo apt-get install docker-ce -y
 ```
-* Go Install
+
+- Go Install
+
 ```
 sudo add-apt-repository ppa:longsleep/golang-backports -y
 sudo apt update
@@ -23,7 +30,8 @@ sudo apt install golang-go -y
 export GO111MODULE=on
 ```
 
-* Graphviz & ascii graph for microns image
+- Graphviz & ascii graph for microns image
+
 ```
 sudo add-apt-repository universe -y
 sudo apt update
@@ -32,7 +40,9 @@ sudo cpanm Graph::Easy
 ```
 
 ## Usage
+
 1. セットアップ
+
 ```
 go build
 ./microns
@@ -49,9 +59,10 @@ go build
 ```
 
 2. 使い方
+
 ```
 ./microns help
-microns 
+microns
 
 Usage:
   microns [flags]
@@ -79,17 +90,20 @@ Flags:
 Use "microns [command] --help" for more information about a command.
 ```
 
-* Shellを用いた場合 [**recommend**]
+- Shell を用いた場合 [**recommend**]
+
 ```
 sudo ./microns create -s -c examples/basic_ebgp/config.yaml | sudo sh
 ```
 
-* Docker APIを用いた場合
+- Docker API を用いた場合
+
 ```
 sudo ./microns -a -c examples/basic_ebgp/config.yaml
 ```
 
-## configファイルのテンプレートを作成
+## config ファイルのテンプレートを作成
+
 ```
 sudo ./microns init -c test.yaml
 
@@ -118,17 +132,20 @@ test:
 
 ```
 
-## configファイルを書き換えた場合
-一度deleteしてからcreateしてください
+## config ファイルを書き換えた場合
+
+一度 delete してから create してください
+
 ```
 sudo ./microns recreate -s -c examples/basic_ebgp/config.yaml | sudo sh
 ```
 
-## statusを一気に見たい場合
+## status を一気に見たい場合
+
 ```
 sudo ./microns status -c examples/basic_ebgp/config.yaml
 
----------------------------------------------- 
+----------------------------------------------
                    STATUS
 ----------------------------------------------
 {"name":"R0","status":{"ns":"Found","container":"running"}}
@@ -140,7 +157,8 @@ sudo ./microns status -c examples/basic_ebgp/config.yaml
 ```
 
 ## トポロジー図を画像で保存
-`-o` で画像のファイル名およびdotファイル名で出力
+
+`-o` で画像のファイル名および dot ファイル名で出力
 
 For Example `-o ebgp => ebgp.dot, ebgp.png`
 
@@ -148,13 +166,15 @@ For Example `-o ebgp => ebgp.dot, ebgp.png`
 ./microns image -c examples/basic_ebgp/config.yaml -o ebgp
 ```
 
-## トポロジー図をascii graphで表示
+## トポロジー図を ascii graph で表示
+
 ```
 ./microns image -c examples/basic_ebgp/config.yaml -o ebgp
 cat ebgp.dot | graph-easy --from=dot --as_ascii
 ```
 
-## tinet config -> microns configへの変換
+## tinet config -> microns config への変換
+
 ```
 ./microns convert -c tinetcfg.yaml -o micronscfgfile
 ```
