@@ -8,8 +8,5 @@ env:
   global:
     - GO111MODULE=on
 
-before_install:
-  - sudo apt-get update -qq
-
 script:
   - go test -v ./api
