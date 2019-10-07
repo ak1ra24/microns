@@ -1,0 +1,114 @@
+nodes:
+  - name: R0
+    image: akiranet24/keepalived
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: S0
+          peerinf: net0
+        - inf: net1
+          type: bridge
+          peernode: BB_SW
+
+  - name: R1
+    image: akiranet24/keepalived
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: S0
+          peerinf: net1
+        - inf: net1
+          type: bridge
+          peernode: BB_SW
+
+  - name: S0
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R0
+          peerinf: net0
+        - inf: net1
+          type: direct
+          peernode: R1
+          peerinf: net0
+
+  - name: C0
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: bridge
+          peernode: BB_SW
+
+switches:
+    - name: BB_SW
+      interfaces:
+          - name: net1
+            type: container
+            peernode: R0
+          - name: net1
+            type: container
+            peernode: R1
+          - name: net0
+            type: container
+            peernode: C0
+
+node_config:
+    - name: R0
+      cmds:
+      - cmd: ip addr add 2.2.2.2/32 dev lo
+      - cmd: ip addr add 10.0.0.1/24 dev net0
+      - cmd: ip addr add 192.168.0.10/24 dev net1
+      - cmd: ip route add 1.1.1.1 via 10.0.0.2
+      - cmd: iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j MASQUERADE
+      - cmd: mkdir -p /etc/keepalived/
+      - cmd: bash -c 'echo "global_defs {            " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "}                        " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "vrrp_instance VI_1 {     " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    state MASTER         " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    interface net1       " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    virtual_router_id 51 " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    priority 200         " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    advert_int 1         " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    virtual_ipaddress {  " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "        192.168.0.1/24   " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    }                    " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "}                        " >> /etc/keepalived/keepalived.conf'
+      - cmd: keepalived
+
+    - name: R1
+      cmds:
+      - cmd: echo R1 config
+      - cmd: ip addr add 3.3.3.3/32 dev lo
+      - cmd: ip addr add 10.1.0.1/24 dev net0
+      - cmd: ip addr add 192.168.0.11/24 dev net1
+      - cmd: ip route add 1.1.1.1 via 10.1.0.2
+      - cmd: iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j MASQUERADE
+      - cmd: mkdir -p /etc/keepalived/
+      - cmd: bash -c 'echo "global_defs {            " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "}                        " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "vrrp_instance VI_1 {     " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    state MASTER         " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    interface net1       " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    virtual_router_id 51 " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    priority 100         " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    advert_int 1         " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    virtual_ipaddress {  " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "        192.168.0.1/24   " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "    }                    " >> /etc/keepalived/keepalived.conf'
+      - cmd: bash -c 'echo "}                        " >> /etc/keepalived/keepalived.conf'
+      - cmd: keepalived
+
+    - name: S0
+      cmds:
+      - cmd: echo S0 config
+      - cmd: ip addr add 1.1.1.1/32 dev lo
+      - cmd: ip addr add 10.0.0.2/24 dev net0
+      - cmd: ip addr add 10.1.0.2/24 dev net1
+
+    - name: C0
+      cmds:
+      - cmd: echo C0 config
+      - cmd: ip addr add 192.168.0.100/24 dev net0
+      - cmd: ip route del default
+      - cmd: ip route add default via 192.168.0.1

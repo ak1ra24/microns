@@ -1,0 +1,139 @@
+nodes:
+  - name: RR
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.1.0.1/24
+          peernode: R1
+          peerinf: net0
+        - inf: net1
+          type: direct
+          ipv4: 10.2.0.1/24
+          peernode: R2
+          peerinf: net0
+        - inf: net2
+          type: direct
+          ipv4: 10.3.0.1/24
+          peernode: R3
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R1
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.1.0.2/24
+          peernode: RR
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R2
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.2.0.2/24
+          peernode: RR
+          peerinf: net1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R3
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.3.0.2/24
+          peernode: RR
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+node_config:
+  - name: RR
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.254/32"
+            -c "exit"
+            -c "router bgp 65000"
+            -c "bgp router-id 1.1.1.1"
+            -c "neighbor 10.1.0.2 remote-as 65000"
+            -c "neighbor 10.2.0.2 remote-as 65000"
+            -c "neighbor 10.3.0.2 remote-as 65000"
+            -c "neighbor 10.1.0.2 route-reflector-client"
+            -c "neighbor 10.2.0.2 route-reflector-client"
+            -c "neighbor 10.3.0.2 route-reflector-client"
+  - name: R1
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.1/32"
+            -c "exit"
+            -c "router bgp 65000"
+            -c "bgp router-id 2.2.2.2"
+            -c "neighbor 10.1.0.1 remote-as 65000"
+            -c "network 10.1.0.0/24"
+            -c "network 10.255.0.1/32"
+
+  - name: R2
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.2/32"
+            -c "exit"
+            -c "router bgp 65000"
+            -c "bgp router-id 3.3.3.3"
+            -c "neighbor 10.2.0.1 remote-as 65000"
+            -c "network 10.2.0.0/24"
+            -c "network 10.255.0.2/32"
+  - name: R3
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.3/32"
+            -c "exit"
+            -c "router bgp 65000"
+            -c "bgp router-id 4.4.4.4"
+            -c "neighbor 10.3.0.1 remote-as 65000"
+            -c "network 10.3.0.0/24"
+            -c "network 10.255.0.3/32"
+
+test:
+  - cmds:
+        - cmd: docker exec C0 ping -c2 10.4.0.2
