@@ -96,16 +96,16 @@ nodes:
 switches:
     - name: BB_SW
       interfaces:
-          - name: net0
+          - inf: net0
             type: container
             peernode: R1
-          - name: net0
+          - inf: net0
             type: container
             peernode: R2
-          - name: net0
+          - inf: net0
             type: container
             peernode: R3
-          - name: net0
+          - inf: net0
             type: container
             peernode: RR
 

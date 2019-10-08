@@ -33,13 +33,28 @@ var checkCmd = &cobra.Command{
 		}
 
 		nodes := utils.ParseNodes(cfgFile)
+		bridges := utils.ParseSwitch(cfgFile)
 		confmap := map[string]string{}
 
 		for _, node := range nodes {
 			for _, inf := range node.Interface {
 				// fmt.Println(node.Name, " : ", inf.InfName, "->", inf.PeerNode, " : ", inf.PeerInf)
-				host := node.Name + ":" + inf.InfName
-				target := inf.PeerNode + ":" + inf.PeerInf
+				if inf.Type == "direct" {
+					host := node.Name + ":" + inf.InfName
+					target := inf.PeerNode + ":" + inf.PeerInf
+					confmap[host] = target
+				} else if inf.Type == "bridge" {
+					host := node.Name + ":" + inf.InfName
+					target := inf.PeerNode + ":" + node.Name
+					confmap[host] = target
+				}
+			}
+		}
+
+		for _, bridge := range bridges {
+			for _, inf := range bridge.Interfaces {
+				host := bridge.Name + ":" + inf.PeerNode
+				target := inf.PeerNode + ":" + inf.InfName
 				confmap[host] = target
 			}
 		}
