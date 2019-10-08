@@ -1,0 +1,337 @@
+nodes:
+  - name: R0
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: Spine01
+          peerinf: net0
+        - inf: net1
+          type: direct
+          peernode: Spine02
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+        - sysctl: net.ipv4.fib_multipath_hash_policy=1
+  - name: Spine01
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R0
+          peerinf: net0
+        - inf: net1
+          type: direct
+          peernode: Leaf01
+          peerinf: net0
+        - inf: net2
+          type: direct
+          peernode: Leaf02
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+        - sysctl: net.ipv4.fib_multipath_hash_policy=1
+  - name: Spine02
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R0
+          peerinf: net1
+        - inf: net1
+          type: direct
+          peernode: Leaf01
+          peerinf: net1
+        - inf: net2
+          type: direct
+          peernode: Leaf02
+          peerinf: net1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+        - sysctl: net.ipv4.fib_multipath_hash_policy=1
+  - name: Leaf01
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: Spine01
+          peerinf: net1
+        - inf: net1
+          type: direct
+          peernode: Spine02
+          peerinf: net1
+        - inf: net2
+          type: direct
+          peernode: VM01
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+        - sysctl: net.ipv4.fib_multipath_hash_policy=1
+  - name: Leaf02
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: Spine01
+          peerinf: net2
+        - inf: net1
+          type: direct
+          peernode: Spine02
+          peerinf: net2
+        - inf: net2
+          type: direct
+          peernode: VM02
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+        - sysctl: net.ipv4.fib_multipath_hash_policy=1
+  - name: VM01
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 192.168.100.10/24
+          peernode: Leaf01
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+        - sysctl: net.ipv4.fib_multipath_hash_policy=1
+  - name: VM02
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 192.168.200.20/24
+          peernode: Leaf02
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+        - sysctl: net.ipv4.fib_multipath_hash_policy=1
+node_config:
+  - name: R0
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.254/32"
+            -c "interface net0"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "interface net1"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "router bgp 65999"
+            -c "bgp router-id 10.255.0.254"
+            -c "bgp bestpath as-path multipath-relax"
+            -c "bgp bestpath compare-routerid"
+            -c "neighbor FABRIC peer-group"
+            -c "neighbor FABRIC remote-as external"
+            -c "neighbor net0 interface peer-group FABRIC"
+            -c "neighbor net1 interface peer-group FABRIC"
+            -c "address-family ipv4 unicast"
+            -c "redistribute connected"
+            -c "exit-address-family"
+  - name: Spine01
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.1/32"
+            -c "interface net0"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "interface net1"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "interface net2"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "router bgp 65001"
+            -c "bgp router-id 10.255.0.1"
+            -c "bgp bestpath as-path multipath-relax"
+            -c "bgp bestpath compare-routerid"
+            -c "neighbor FABRIC peer-group"
+            -c "neighbor FABRIC remote-as external"
+            -c "neighbor net0 interface peer-group FABRIC"
+            -c "neighbor net1 interface peer-group FABRIC"
+            -c "neighbor net2 interface peer-group FABRIC"
+            -c "address-family ipv4 unicast"
+            -c "redistribute connected"
+            -c "exit-address-family"
+            -c "address-family l2vpn evpn"
+            -c "neighbor FABRIC activate"
+            -c "exit-address-family"
+
+  - name: Spine02
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.2/32"
+            -c "interface net0"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "interface net1"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "interface net2"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "router bgp 65002"
+            -c "bgp router-id 10.255.0.2"
+            -c "bgp bestpath as-path multipath-relax"
+            -c "bgp bestpath compare-routerid"
+            -c "neighbor FABRIC peer-group"
+            -c "neighbor FABRIC remote-as external"
+            -c "neighbor net0 interface peer-group FABRIC"
+            -c "neighbor net1 interface peer-group FABRIC"
+            -c "neighbor net2 interface peer-group FABRIC"
+            -c "address-family ipv4 unicast"
+            -c "redistribute connected"
+            -c "exit-address-family"
+            -c "address-family l2vpn evpn"
+            -c "neighbor FABRIC activate"
+            -c "exit-address-family"
+
+  - name: Leaf01
+    cmds:
+        - cmd: ip link add dev br100 type bridge
+        - cmd: ip link set dev br100 up
+        - cmd: ip addr add 192.168.100.1/24 dev br100
+        - cmd: ip link add vxlan100 type vxlan id 100 dstport 4789 local 10.255.0.11
+        - cmd: ip link set dev net2 master br100
+        - cmd: ip link set dev net2 promisc on
+        - cmd: ip link set dev net2 up
+        - cmd: ip link set dev vxlan100 master br100
+        - cmd: ip link set dev vxlan100 promisc on
+        - cmd: ip link set dev vxlan100 up
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.11/32"
+            -c "interface net0"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "interface net1"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "router bgp 65011"
+            -c "bgp router-id 10.255.0.11"
+            -c "bgp bestpath as-path multipath-relax"
+            -c "bgp bestpath compare-routerid"
+            -c "neighbor FABRIC peer-group"
+            -c "neighbor FABRIC remote-as external"
+            -c "neighbor net0 interface peer-group FABRIC"
+            -c "neighbor net1 interface peer-group FABRIC"
+            -c "address-family ipv4 unicast"
+            -c "redistribute connected"
+            -c "exit-address-family"
+            -c "address-family l2vpn evpn"
+            -c "neighbor FABRIC activate"
+            -c "advertise-all-vni"
+            -c "exit-address-family"
+
+  - name: Leaf02
+    cmds:
+        - cmd: ip link add dev br100 type bridge
+        - cmd: ip link set dev br100 up
+        - cmd: ip addr add 192.168.200.1/24 dev br100
+        - cmd: ip link add vxlan100 type vxlan id 100 dstport 4789 local 10.255.0.12
+        - cmd: ip link set dev net2 master br100
+        - cmd: ip link set dev net2 promisc on
+        - cmd: ip link set dev net2 up
+        - cmd: ip link set dev vxlan100 master br100
+        - cmd: ip link set dev vxlan100 promisc on
+        - cmd: ip link set dev vxlan100 up
+        - cmd: /etc/init.d/frr start
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface lo"
+            -c "ip address 10.255.0.12/32"
+            -c "interface net0"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "interface net1"
+            -c "ipv6 nd ra-interval 1"
+            -c "no ipv6 nd suppress-ra"
+            -c "router bgp 65012"
+            -c "bgp router-id 10.255.0.12"
+            -c "bgp bestpath as-path multipath-relax"
+            -c "bgp bestpath compare-routerid"
+            -c "neighbor FABRIC peer-group"
+            -c "neighbor FABRIC remote-as external"
+            -c "neighbor net0 interface peer-group FABRIC"
+            -c "neighbor net1 interface peer-group FABRIC"
+            -c "address-family ipv4 unicast"
+            -c "redistribute connected"
+            -c "exit-address-family"
+            -c "address-family l2vpn evpn"
+            -c "neighbor FABRIC activate"
+            -c "advertise-all-vni"
+            -c "exit-address-family"
+
+  - name: VM01
+    cmds:
+        - cmd: ip route del default
+        - cmd: ip route add default via 192.168.100.1
+
+  - name: VM02
+    cmds:
+        - cmd: ip route del default
+        - cmd: ip route add default via 192.168.200.1
+
+test:
+  - cmds:
+        - cmd: docker exec C0 ping -c2 10.4.0.2
