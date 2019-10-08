@@ -1,0 +1,200 @@
+nodes:
+  - name: R1
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R2
+          peerinf: net0
+        - inf: net1
+          type: direct
+          peernode: C1
+          peerinf: net0
+        - inf: net2
+          type: direct
+          peernode: C3
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R2
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R1
+          peerinf: net0
+        - inf: net1
+          type: direct
+          peernode: C2
+          peerinf: net0
+        - inf: net2
+          type: direct
+          peernode: C4
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C1
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.10.1.2/24
+          peernode: R1
+          peerinf: net1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C2
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.10.2.2/24
+          peernode: R2
+          peerinf: net1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C3
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.20.1.2/24
+          peernode: R1
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C4
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          ipv4: 10.20.2.2/24
+          peernode: R2
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+node_config:
+  - name: R1
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: ip link add link net0 name net0.10 type vlan id 10
+        - cmd: ip link add link net0 name net0.20 type vlan id 20
+        - cmd: ip link add red type vrf table 10
+        - cmd: ip link add blue type vrf table 20
+        - cmd: ip link set dev net1 vrf red
+        - cmd: ip link set dev net2 vrf blue
+        - cmd: ip link set dev net0.10 vrf red
+        - cmd: ip link set dev net0.20 vrf blue
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface net0.10 vrf red"
+            -c "ip address 10.10.255.1/24"
+            -c "no shutdown"
+            -c "interface net0.20 vrf blue"
+            -c "ip address 10.20.255.1/24"
+            -c "no shutdown"
+            -c "interface net1 vrf red"
+            -c "ip address 10.10.1.1/24"
+            -c "no shutdown"
+            -c "interface net2 vrf blue"
+            -c "ip address 10.20.1.1/24"
+            -c "no shutdown"
+            -c "interface red"
+            -c "no shutdown"
+            -c "interface blue"
+            -c "no shutdown"
+            -c "ip route 10.10.2.0/24 10.10.255.2 vrf red"
+            -c "ip route 10.20.2.0/24 10.20.255.2 vrf blue"
+
+  - name: R2
+    cmds:
+        - cmd: /etc/init.d/frr start
+        - cmd: ip link add link net0 name net0.10 type vlan id 10
+        - cmd: ip link add link net0 name net0.20 type vlan id 20
+        - cmd: ip link add red type vrf table 10
+        - cmd: ip link add blue type vrf table 20
+        - cmd: ip link set dev net1 vrf red
+        - cmd: ip link set dev net2 vrf blue
+        - cmd: ip link set dev net0.10 vrf red
+        - cmd: ip link set dev net0.20 vrf blue
+        - cmd: >-
+            vtysh -c "conf t"
+            -c "interface net0.10 vrf red"
+            -c "ip address 10.10.255.2/24"
+            -c "no shutdown"
+            -c "interface net0.20 vrf blue"
+            -c "ip address 10.20.255.2/24"
+            -c "no shutdown"
+            -c "interface net1 vrf red"
+            -c "ip address 10.10.2.1/24"
+            -c "no shutdown"
+            -c "interface net2 vrf blue"
+            -c "ip address 10.20.2.1/24"
+            -c "no shutdown"
+            -c "interface red"
+            -c "no shutdown"
+            -c "interface blue"
+            -c "no shutdown"
+            -c "ip route 10.10.1.0/24 10.10.255.1 vrf red"
+            -c "ip route 10.20.1.0/24 10.20.255.1 vrf blue"
+
+  - name: C1
+    cmds:
+        - cmd: ip route del default
+        - cmd: ip route add default via 10.10.1.1
+  - name: C2
+    cmds:
+        - cmd: ip route del default
+        - cmd: ip route add default via 10.10.2.1
+  - name: C3
+    cmds:
+        - cmd: ip route del default
+        - cmd: ip route add default via 10.20.1.1
+  - name: C4
+    cmds:
+        - cmd: ip route del default
+        - cmd: ip route add default via 10.20.2.1
+test:
+  - cmds:
+        - cmd: docker exec C0 ping -c2 10.4.0.2
