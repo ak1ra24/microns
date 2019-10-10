@@ -428,7 +428,13 @@ func (c *Container) SetConf(containerName string, cmd string) error {
 	var runcmd string
 	var runcmds []string
 	for _, splitCmd := range splitCmds {
-		if strings.HasPrefix(splitCmd, "\"") {
+		splitCmd = strings.TrimSpace(splitCmd)
+		fmt.Println("splitCmd: ", splitCmd)
+		if strings.HasPrefix(splitCmd, "\"") && strings.HasSuffix(splitCmd, "\"") {
+			runcmd = splitCmd
+			runcmds = append(runcmds, runcmd)
+			runcmd = ""
+		} else if strings.HasPrefix(splitCmd, "\"") {
 			runcmd = strings.TrimLeft(splitCmd, "\"")
 		} else if strings.HasSuffix(splitCmd, "\"") {
 			runcmd += " " + strings.TrimRight(splitCmd, "\"")
@@ -443,6 +449,8 @@ func (c *Container) SetConf(containerName string, cmd string) error {
 		}
 	}
 
+	fmt.Println(runcmds)
+
 	idreq, err := c.Cli.ContainerExecCreate(c.Ctx, containerName, types.ExecConfig{
 		User:         "root",
 		Privileged:   true,
@@ -453,7 +461,7 @@ func (c *Container) SetConf(containerName string, cmd string) error {
 		AttachStdout: true,
 		Cmd:          runcmds,
 	})
-	//
+
 	if err != nil {
 		return err
 	}
