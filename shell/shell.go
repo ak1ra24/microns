@@ -192,6 +192,20 @@ func BridgeDel(brname string) string {
 	return delBrCmd
 }
 
+// DockerStart func is Output start docker
+func DockerStart(nodename string) string {
+	startDockercmd := fmt.Sprintf("docker start %s", nodename)
+
+	return startDockercmd
+}
+
+// DockerStop func is Output stop docker
+func DockerStop(nodename string) string {
+	stopDockercmd := fmt.Sprintf("docker stop %s", nodename)
+
+	return stopDockercmd
+}
+
 // RunTestCmd func is Output testcmd
 func RunTestCmd(testcmds utils.TestCmd) []string {
 

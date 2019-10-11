@@ -54,6 +54,7 @@ var deleteCmd = &cobra.Command{
 			c := api.NewContainer(ctx, cli)
 			for _, node := range nodes {
 				c.RemoveNs(node.Name)
+				c.RemoveContainer(node.Name)
 			}
 			for _, s := range switches {
 				api.RemoveBr(s.Name)
@@ -74,6 +75,8 @@ var deleteCmd = &cobra.Command{
 				fmt.Println(fmt.Sprintf("echo %s", resultBridge))
 			}
 			fmt.Println("echo 'Success Delete microns!'")
+		} else {
+			fmt.Println("Plese set --api(-a) or --shell(-s) flag")
 		}
 	},
 }

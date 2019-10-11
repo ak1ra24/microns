@@ -143,6 +143,8 @@ var createCmd = &cobra.Command{
 
 			fmt.Println("echo 'Success create microns!'")
 			return nil
+		} else {
+			fmt.Println("Plese set --api(-a) or --shell(-s) flag")
 		}
 		return nil
 	},

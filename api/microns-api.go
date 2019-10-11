@@ -429,7 +429,6 @@ func (c *Container) SetConf(containerName string, cmd string) error {
 	var runcmds []string
 	for _, splitCmd := range splitCmds {
 		splitCmd = strings.TrimSpace(splitCmd)
-		fmt.Println("splitCmd: ", splitCmd)
 		if strings.HasPrefix(splitCmd, "\"") && strings.HasSuffix(splitCmd, "\"") {
 			runcmd = splitCmd
 			runcmds = append(runcmds, runcmd)
@@ -483,15 +482,22 @@ func (c *Container) RemoveNs(nodename string) error {
 	if err := os.Remove(nodepath); err != nil {
 		return err
 	}
-	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{})
+
+	return nil
+}
+
+// RemoveContainer is Remove Docker Container
+func (c *Container) RemoveContainer(nodename string) error {
+
+	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{All: true})
 	if err != nil {
 		return err
 	}
 
 	for _, container := range containers {
-		fmt.Println(container.ID)
 		containerName := strings.Replace(container.Names[0], "/", "", 1)
 		if nodename == containerName {
+			fmt.Println("Remove ContainerName: ", containerName)
 			if err := c.Cli.ContainerRemove(c.Ctx, container.ID, types.ContainerRemoveOptions{Force: true}); err != nil {
 				return err
 			}
@@ -499,6 +505,7 @@ func (c *Container) RemoveNs(nodename string) error {
 	}
 
 	return nil
+
 }
 
 // RemoveBr is Remove Linux Bridge
@@ -529,7 +536,7 @@ func (c *Container) StatusNs(nodename string) (string, error) {
 		status.Name = nodename
 		status.Status.Ns = "Found"
 	}
-	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{})
+	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{All: true})
 	if err != nil {
 		return "", err
 	}
@@ -550,4 +557,46 @@ func (c *Container) StatusNs(nodename string) (string, error) {
 	jsonstring := string(jsonbyte)
 
 	return jsonstring, nil
+}
+
+// StartContainer is start docker container
+func (c *Container) StartContainer(nodename string) error {
+
+	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{All: true})
+	if err != nil {
+		return err
+	}
+	for _, container := range containers {
+		containerName := strings.Replace(container.Names[0], "/", "", 1)
+		if nodename == containerName {
+			fmt.Println("start containerName: ", containerName)
+			if err := c.Cli.ContainerStart(c.Ctx, container.ID, types.ContainerStartOptions{}); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+
+}
+
+// StopContainer is stop docker container
+func (c *Container) StopContainer(nodename string) error {
+
+	containers, err := c.Cli.ContainerList(c.Ctx, types.ContainerListOptions{All: true})
+	if err != nil {
+		return err
+	}
+	for _, container := range containers {
+		containerName := strings.Replace(container.Names[0], "/", "", 1)
+		if nodename == containerName {
+			fmt.Println("stop containerName: ", containerName)
+			if err := c.Cli.ContainerStop(c.Ctx, container.ID, nil); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+
 }
