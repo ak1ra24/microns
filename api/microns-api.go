@@ -15,6 +15,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	"github.com/vishvananda/netlink"
 	"golang.org/x/net/context"
 )
@@ -45,6 +46,41 @@ func NewContainer(ctx context.Context, cli *client.Client) *Container {
 	}
 
 	return container
+}
+
+// CreateContainerPort func is container create port binding
+func (c *Container) CreateContainerPort(imageName string, hostName string, cport string, hport string) error {
+	imageName = "docker.io/" + imageName
+
+	out, err := c.Cli.ImagePull(c.Ctx, imageName, types.ImagePullOptions{})
+	if err != nil {
+		return err
+	}
+	io.Copy(os.Stdout, out)
+
+	var port nat.Port
+	var portMap nat.PortMap
+	var portbindings []nat.PortBinding
+	portbindings = append(portbindings, nat.PortBinding{HostPort: hport})
+	portMap[port] = portbindings
+
+	resp, err := c.Cli.ContainerCreate(c.Ctx,
+		&container.Config{
+			Image:    imageName,
+			Hostname: hostName,
+			Tty:      true,
+		},
+		&container.HostConfig{
+			PortBindings: portMap,
+		}, nil, hostName)
+	if err != nil {
+		return err
+	}
+	if err := c.Cli.ContainerStart(c.Ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Pull and Create Docker Container from config and Set Option for sysctl and volume
