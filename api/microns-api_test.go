@@ -62,6 +62,9 @@ func TestDockertonetnsAddDel(t *testing.T) {
 		if err := c.RemoveNs(node.Name); err != nil {
 			t.Fatalf("failed test %#v", err)
 		}
+		if err := c.RemoveContainer(node.Name); err != nil {
+			t.Fatalf("failed test %#v", err)
+		}
 	}
 }
 
@@ -101,6 +104,9 @@ func TestLinkAddDel(t *testing.T) {
 
 	for _, node := range nodes {
 		if err := c.RemoveNs(node.Name); err != nil {
+			t.Fatalf("failed test %#v", err)
+		}
+		if err := c.RemoveContainer(node.Name); err != nil {
 			t.Fatalf("failed test %#v", err)
 		}
 	}
@@ -163,6 +169,9 @@ func TestSetConfAddDel(t *testing.T) {
 
 	for _, node := range nodes {
 		if err := c.RemoveNs(node.Name); err != nil {
+			t.Fatalf("failed test %#v", err)
+		}
+		if err := c.RemoveContainer(node.Name); err != nil {
 			t.Fatalf("failed test %#v", err)
 		}
 	}
