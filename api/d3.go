@@ -10,8 +10,6 @@ import (
 	"strings"
 
 	"github.com/ak1ra24/microns/utils"
-	"github.com/docker/docker/client"
-	"golang.org/x/net/context"
 )
 
 var (
@@ -126,19 +124,19 @@ func Confirm(s string) bool {
 }
 
 // CreateFrontend func is Image: akiranet24/microns-frontend docker container start
-func CreateFrontend() error {
-
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		return err
-	}
-
-	c := NewContainer(ctx, cli)
-
-	if err := c.CreateContainerPort("akiranet24/microns-frontend", "microns-frontend", "80", "8080"); err != nil {
-		return err
-	}
-
-	return nil
-}
+// func CreateFrontend() error {
+//
+// 	ctx := context.Background()
+// 	cli, err := client.NewEnvClient()
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	c := NewContainer(ctx, cli)
+//
+// 	if err := c.CreateContainerPort("akiranet24/microns-frontend", "microns-frontend", "80", "8080"); err != nil {
+// 		return err
+// 	}
+//
+// 	return nil
+// }
