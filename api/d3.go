@@ -2,16 +2,14 @@ package api
 
 import (
 	"bufio"
-	"context"
-	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/ak1ra24/microns/utils"
-	"github.com/docker/docker/client"
 )
 
 var (
@@ -37,11 +35,10 @@ type D3Link struct {
 	Target int `json:"target"`
 }
 
-// MicronstoD3Handler func is microns config yaml to d3 json
-func MicronstoD3Handler(w http.ResponseWriter, r *http.Request) {
+// HtmlHandler func is template html view
+func HtmlHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("./websrc/html/index.html.tpl"))
 
-	// filepath := "/home/akira/go/src/github.com/ak1ra24/microns/examples/clos/config.yaml"
-	// filepath := "./examples/clos/config.yaml"
 	filepath := cfgFile
 	nodes := utils.ParseNodes(filepath)
 	bridges := utils.ParseSwitch(filepath)
@@ -72,18 +69,11 @@ func MicronstoD3Handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var d3jsonData D3json
-	d3jsonData.D3Nodes = d3nodes
-	d3jsonData.D3Links = d3links
+	d3jsonData := D3json{D3Nodes: d3nodes, D3Links: d3links}
 
-	d3json, err := json.Marshal(d3jsonData)
-	if err != nil {
+	if err := t.Execute(w, d3jsonData); err != nil {
 		log.Fatal(err)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write(d3json)
 
 }
 
@@ -93,35 +83,20 @@ func JsonResHandler(filepath string) {
 	fmt.Println("config File: ", cfgFile)
 	ok := Confirm("\x1b[31mConfirm use port number 8080 for frontend nginx container and 8000 for backend webapp\x1b[0m")
 	if ok {
-		if err := CreateFrontend(); err != nil {
+
+		ipv4s, err := utils.GetIP()
+		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Printf("Please Access FrontEnd: %s:8080, BackEnd: %s:8000/api/d3", ipv4s[0], ipv4s[0])
 
-		fmt.Println("Please Access FrontEnd: localhost:8080, BackEnd: localhost:8000/api/d3")
+		http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("websrc/images/"))))
+		http.HandleFunc("/", HtmlHandler)
 
-		http.HandleFunc("/api/d3", MicronstoD3Handler)
 		http.ListenAndServe(":8000", nil)
 	} else {
 		fmt.Println("Finish webview command")
 	}
-}
-
-// CreateFrontend func is Image: akiranet24/microns-frontend docker container start
-func CreateFrontend() error {
-
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		return err
-	}
-
-	c := NewContainer(ctx, cli)
-
-	if err := c.CreateContainerPort("akiranet24/microns-frontend", "microns-frontend", "80", "8080"); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // Confirm func is Wait until yes or no is entered

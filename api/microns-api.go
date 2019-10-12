@@ -59,10 +59,16 @@ func (c *Container) CreateContainerPort(imageName string, hostName string, cport
 	io.Copy(os.Stdout, out)
 
 	var port nat.Port
-	var portMap nat.PortMap
 	var portbindings []nat.PortBinding
 	portbindings = append(portbindings, nat.PortBinding{HostPort: hport})
-	portMap[port] = portbindings
+	fmt.Println(cport)
+	port, err = nat.NewPort("tcp", cport)
+	if err != nil {
+		return err
+	}
+	fmt.Println(port)
+	portMap := nat.PortMap{port: portbindings}
+	// portMap[port] = portbindings
 
 	resp, err := c.Cli.ContainerCreate(c.Ctx,
 		&container.Config{
