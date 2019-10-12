@@ -81,14 +81,14 @@ func HtmlHandler(w http.ResponseWriter, r *http.Request) {
 func JsonResHandler(filepath string) {
 	cfgFile = filepath
 	fmt.Println("config File: ", cfgFile)
-	ok := Confirm("\x1b[31mConfirm use port number 8080 for frontend nginx container and 8000 for backend webapp\x1b[0m")
+	ok := Confirm("\x1b[31mConfirm use port number 8000 for webapp\x1b[0m")
 	if ok {
 
 		ipv4s, err := utils.GetIP()
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("Please Access FrontEnd: %s:8080, BackEnd: %s:8000/api/d3", ipv4s[0], ipv4s[0])
+        fmt.Printf("Please Access http://%s:8000/", ipv4s[0])
 
 		http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("websrc/images/"))))
 		http.HandleFunc("/", HtmlHandler)
