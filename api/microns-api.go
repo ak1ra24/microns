@@ -14,7 +14,9 @@ import (
 	"github.com/containernetworking/plugins/pkg/utils/sysctl"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	"github.com/vishvananda/netlink"
 	"golang.org/x/net/context"
 )
@@ -48,45 +50,69 @@ func NewContainer(ctx context.Context, cli *client.Client) *Container {
 }
 
 // CreateContainerPort func is container create port binding
-// func (c *Container) CreateContainerPort(imageName string, hostName string, cport string, hport string) error {
-// 	imageName = "docker.io/" + imageName
-//
-// 	out, err := c.Cli.ImagePull(c.Ctx, imageName, types.ImagePullOptions{})
-// 	if err != nil {
-// 		return err
-// 	}
-// 	io.Copy(os.Stdout, out)
-//
-// 	var port nat.Port
-// 	var portbindings []nat.PortBinding
-// 	portbindings = append(portbindings, nat.PortBinding{HostPort: hport})
-// 	fmt.Println(cport)
-// 	port, err = nat.NewPort("tcp", cport)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	fmt.Println(port)
-// 	portMap := nat.PortMap{port: portbindings}
-// 	// portMap[port] = portbindings
-//
-// 	resp, err := c.Cli.ContainerCreate(c.Ctx,
-// 		&container.Config{
-// 			Image:    imageName,
-// 			Hostname: hostName,
-// 			Tty:      true,
-// 		},
-// 		&container.HostConfig{
-// 			PortBindings: portMap,
-// 		}, nil, hostName)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if err := c.Cli.ContainerStart(c.Ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-// 		return err
-// 	}
-//
-// 	return nil
-// }
+func (c *Container) CreateContainerPort(imageName string, hostName string, cport string, hport string, cfgfile string) error {
+	imageName = "docker.io/" + imageName
+
+	out, err := c.Cli.ImagePull(c.Ctx, imageName, types.ImagePullOptions{})
+	if err != nil {
+		return err
+	}
+	io.Copy(os.Stdout, out)
+
+	var port nat.Port
+	var portbindings []nat.PortBinding
+	portbindings = append(portbindings, nat.PortBinding{HostPort: hport})
+	fmt.Println("[Port Binding] Container Port: ", cport, "Host Port: ", hport)
+	port, err = nat.NewPort("tcp", cport)
+	if err != nil {
+		return err
+	}
+	portMap := nat.PortMap{port: portbindings}
+
+	containerBindFile := "/temp"
+
+	p, _ := os.Getwd()
+	if strings.HasPrefix(cfgfile, "./") {
+		cfgfile = strings.Replace(cfgfile, "./", "", -1)
+	}
+	splitdir := strings.Split(cfgfile, "/")
+
+	cfgfile = p + "/" + splitdir[0]
+
+	fmt.Println("[Mount Volume] HostPath: ", cfgfile, " : ", "ContainerPath: ", containerBindFile)
+
+	cmd := containerBindFile
+	for _, cfgdir := range splitdir[1:] {
+		cmd += "/" + cfgdir
+	}
+	fmt.Println("Exec Cmd: ", cmd)
+
+	resp, err := c.Cli.ContainerCreate(c.Ctx,
+		&container.Config{
+			Image:    imageName,
+			Hostname: hostName,
+			Tty:      true,
+			Cmd:      []string{cmd},
+		},
+		&container.HostConfig{
+			PortBindings: portMap,
+			Mounts: []mount.Mount{
+				{
+					Type:   mount.TypeBind,
+					Source: cfgfile,
+					Target: containerBindFile,
+				},
+			},
+		}, nil, hostName)
+	if err != nil {
+		return err
+	}
+	if err := c.Cli.ContainerStart(c.Ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // Pull and Create Docker Container from config and Set Option for sysctl and volume
 func (c *Container) Pull(nodes []utils.Node) error {

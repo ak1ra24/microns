@@ -19,19 +19,41 @@ import (
 	"os"
 
 	"github.com/ak1ra24/microns/api"
+	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
 )
 
 // webviewCmd represents the webview command
 var webviewCmd = &cobra.Command{
 	Use:   "webview",
 	Short: "webview",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(cfgFile) == 0 {
 			fmt.Println("Must Set CONFIG YAML")
 			os.Exit(1)
 		}
-		api.JsonResHandler(cfgFile)
+		ctx := context.Background()
+		cli, err := client.NewEnvClient()
+		if err != nil {
+			return err
+		}
+
+		ok := api.Confirm("\x1b[31mConfirm use port number 8000 for webapp\x1b[0m")
+
+		if ok {
+			c := api.NewContainer(ctx, cli)
+
+			if err := c.CreateContainerPort("akiranet24/microns-frontend", "microns-frontend", "8000", "8000", cfgFile); err != nil {
+				return err
+			}
+
+			fmt.Println("http://<your machine address>:8000/")
+		} else {
+			fmt.Println("Finish webview command...")
+		}
+
+		return nil
 	},
 }
 

@@ -88,7 +88,7 @@ func JsonResHandler(filepath string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-        fmt.Printf("Please Access http://%s:8000/", ipv4s[0])
+		fmt.Printf("Please Access http://%s:8000/", ipv4s[0])
 
 		http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("websrc/images/"))))
 		http.HandleFunc("/", HtmlHandler)
