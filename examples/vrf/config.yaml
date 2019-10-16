@@ -197,4 +197,15 @@ node_config:
         - cmd: ip route add default via 10.20.2.1
 test:
   - cmds:
-        - cmd: docker exec C0 ping -c2 10.4.0.2
+        - cmd: docker exec C1 ping -c2 10.10.1.1
+        - cmd: docker exec C1 ping -c2 10.10.255.1
+        - cmd: docker exec C1 ping -c2 10.10.2.2
+        - cmd: docker exec C2 ping -c2 10.10.2.1
+        - cmd: docker exec C2 ping -c2 10.10.255.2
+        - cmd: docker exec C2 ping -c2 10.10.1.2
+        - cmd: docker exec C3 ping -c2 10.20.1.2
+        - cmd: docker exec C3 ping -c2 10.20.255.1
+        - cmd: docker exec C3 ping -c2 10.20.2.2
+        - cmd: docker exec C4 ping -c2 10.20.2.1
+        - cmd: docker exec C4 ping -c2 10.20.255.2
+        - cmd: docker exec C4 ping -c2 10.20.1.2

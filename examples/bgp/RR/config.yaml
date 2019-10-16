@@ -86,13 +86,14 @@ node_config:
             -c "ip address 10.255.0.254/32"
             -c "exit"
             -c "router bgp 65000"
-            -c "bgp router-id 1.1.1.1"
+            -c "bgp router-id 10.255.0.254"
             -c "neighbor 10.1.0.2 remote-as 65000"
             -c "neighbor 10.2.0.2 remote-as 65000"
             -c "neighbor 10.3.0.2 remote-as 65000"
             -c "neighbor 10.1.0.2 route-reflector-client"
             -c "neighbor 10.2.0.2 route-reflector-client"
             -c "neighbor 10.3.0.2 route-reflector-client"
+            -c "redistribute connected"
   - name: R1
     cmds:
         - cmd: /etc/init.d/frr start
@@ -102,10 +103,10 @@ node_config:
             -c "ip address 10.255.0.1/32"
             -c "exit"
             -c "router bgp 65000"
-            -c "bgp router-id 2.2.2.2"
+            -c "bgp router-id 10.255.0.1"
             -c "neighbor 10.1.0.1 remote-as 65000"
-            -c "network 10.1.0.0/24"
             -c "network 10.255.0.1/32"
+            -c "redistribute connected"
 
   - name: R2
     cmds:
@@ -116,10 +117,10 @@ node_config:
             -c "ip address 10.255.0.2/32"
             -c "exit"
             -c "router bgp 65000"
-            -c "bgp router-id 3.3.3.3"
+            -c "bgp router-id 10.255.0.2"
             -c "neighbor 10.2.0.1 remote-as 65000"
-            -c "network 10.2.0.0/24"
             -c "network 10.255.0.2/32"
+            -c "redistribute connected"
   - name: R3
     cmds:
         - cmd: /etc/init.d/frr start
@@ -129,11 +130,18 @@ node_config:
             -c "ip address 10.255.0.3/32"
             -c "exit"
             -c "router bgp 65000"
-            -c "bgp router-id 4.4.4.4"
+            -c "bgp router-id 10.255.0.3"
             -c "neighbor 10.3.0.1 remote-as 65000"
-            -c "network 10.3.0.0/24"
             -c "network 10.255.0.3/32"
+            -c "redistribute connected"
 
 test:
   - cmds:
-        - cmd: docker exec C0 ping -c2 10.4.0.2
+        - cmd: docker exec R1 ping -c2 10.255.0.1
+        - cmd: docker exec R1 ping -c2 10.255.0.2
+        - cmd: docker exec R1 ping -c2 10.255.0.3
+        - cmd: docker exec R1 ping -c2 10.2.0.2
+        - cmd: docker exec R1 ping -c2 10.3.0.2
+        - cmd: docker exec R2 ping -c2 10.255.0.2
+        - cmd: docker exec R3 ping -c2 10.255.0.3
+

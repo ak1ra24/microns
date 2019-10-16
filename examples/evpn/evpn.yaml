@@ -50,6 +50,7 @@ nodes:
           type: direct
           peernode: C6
           peerinf: net0
+
   - name: C1
     image: akiranet24/ubuntu:18.10
     interfaces:
@@ -162,15 +163,13 @@ node_config:
       - cmd: ip link add br100 type bridge
       - cmd: ip link set dev br100 up
       - cmd: ip addr add 10.100.0.1/16 dev br100
-      - cmd: >-
-          ip link add vxlan100 type vxlan id 100
-          dstport 4789 local 10.255.0.1
+      - cmd: ip link add vxlan100 type vxlan id 100 dstport 4789 local 10.255.0.1
+
       - cmd: ip link add br200 type bridge
       - cmd: ip link set dev br200 up
       - cmd: ip addr add 10.200.0.1/16 dev br200
-      - cmd: >-
-          ip link add vxlan200 type vxlan id 200
-          dstport 4789 local 10.255.0.1
+      - cmd: ip link add vxlan200 type vxlan id 200 dstport 4789 local 10.255.0.1
+
       - cmd: ip link set dev net1 master br100
       - cmd: ip link set dev net1 promisc on
       - cmd: ip link set dev net1 up
@@ -216,15 +215,11 @@ node_config:
       - cmd: ip link add br100 type bridge
       - cmd: ip link set dev br100 up
       - cmd: ip addr add 10.100.0.2/16 dev br100
-      - cmd: >-
-          ip link add vxlan100 type vxlan id 100
-          dstport 4789 local 10.255.0.2
+      - cmd: ip link add vxlan100 type vxlan id 100 dstport 4789 local 10.255.0.2
       - cmd: ip link add br200 type bridge
       - cmd: ip link set dev br200 up
       - cmd: ip addr add 10.200.0.2/16 dev br200
-      - cmd: >-
-          ip link add vxlan200 type vxlan id 200
-          dstport 4789 local 10.255.0.2
+      - cmd: ip link add vxlan200 type vxlan id 200 dstport 4789 local 10.255.0.2
       - cmd: ip link set dev net1 master br100
       - cmd: ip link set dev net1 promisc on
       - cmd: ip link set dev net1 up
@@ -270,15 +265,11 @@ node_config:
       - cmd: ip link add br100 type bridge
       - cmd: ip link set dev br100 up
       - cmd: ip addr add 10.100.0.3/16 dev br100
-      - cmd: >-
-          ip link add vxlan100 type vxlan id 100
-          dstport 4789 local 10.255.0.3
+      - cmd: ip link add vxlan100 type vxlan id 100 dstport 4789 local 10.255.0.3
       - cmd: ip link add br200 type bridge
       - cmd: ip link set dev br200 up
       - cmd: ip addr add 10.200.0.3/16 dev br200
-      - cmd: >-
-          ip link add vxlan200 type vxlan id 200
-          dstport 4789 local 10.255.0.3
+      - cmd: ip link add vxlan200 type vxlan id 200 dstport 4789 local 10.255.0.3
       - cmd: ip link set dev net1 master br100
       - cmd: ip link set dev net1 promisc on
       - cmd: ip link set dev net1 up
@@ -292,7 +283,6 @@ node_config:
       - cmd: ip link set dev vxlan200 master br200
       - cmd: ip link set dev vxlan200 promisc on
       - cmd: ip link set dev vxlan200 up
-      - cmd: /etc/init.d/frr start
 
       - cmd: >-
           vtysh -c "conf t"

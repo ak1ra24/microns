@@ -547,7 +547,7 @@ func (c *Container) RemoveNs(nodename string) error {
 	path := "/var/run/netns/"
 	nodepath := path + nodename
 	if err := os.Remove(nodepath); err != nil {
-		return err
+		fmt.Println("Not Exist: ", nodename)
 	}
 
 	return nil
@@ -566,7 +566,7 @@ func (c *Container) RemoveContainer(nodename string) error {
 		if nodename == containerName {
 			fmt.Println("Remove ContainerName: ", containerName)
 			if err := c.Cli.ContainerRemove(c.Ctx, container.ID, types.ContainerRemoveOptions{Force: true}); err != nil {
-				return err
+				fmt.Println("Not Exist Container Name: ", nodename)
 			}
 		}
 	}
@@ -579,7 +579,8 @@ func (c *Container) RemoveContainer(nodename string) error {
 func RemoveBr(bridgeName string) error {
 	br, err := netlink.LinkByName(bridgeName)
 	if err != nil {
-		return err
+		fmt.Println("Not Exist Bridge: ", bridgeName)
+		return nil
 	}
 	if err := netlink.LinkDel(br); err != nil {
 		return err

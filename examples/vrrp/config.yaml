@@ -9,6 +9,14 @@ nodes:
         - inf: net1
           type: bridge
           peernode: BB_SW
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
 
   - name: R1
     image: akiranet24/keepalived
@@ -20,6 +28,14 @@ nodes:
         - inf: net1
           type: bridge
           peernode: BB_SW
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
 
   - name: S0
     image: akiranet24/frr:1.0
@@ -32,6 +48,14 @@ nodes:
           type: direct
           peernode: R1
           peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
 
   - name: C0
     image: akiranet24/frr:1.0
@@ -39,6 +63,14 @@ nodes:
         - inf: net0
           type: bridge
           peernode: BB_SW
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
 
 switches:
     - name: BB_SW
@@ -112,3 +144,24 @@ node_config:
       - cmd: ip addr add 192.168.0.100/24 dev net0
       - cmd: ip route del default
       - cmd: ip route add default via 192.168.0.1
+
+test:
+  - cmds:
+      - cmd: echo ping
+      - cmd: docker exec R0 ping -c2 10.0.0.1
+      - cmd: docker exec R0 ping -c2 10.0.0.2
+      - cmd: docker exec R0 ping -c2 192.168.0.10
+      - cmd: docker exec R0 ping -c2 192.168.0.11
+      - cmd: docker exec R0 ping -c2 192.168.0.100
+      - cmd: docker exec R1 ping -c2 10.1.0.1
+      - cmd: docker exec R1 ping -c2 10.1.0.2
+      - cmd: docker exec R1 ping -c2 192.168.0.11
+      - cmd: docker exec R1 ping -c2 192.168.0.10
+      - cmd: docker exec R1 ping -c2 192.168.0.100
+      - cmd: docker exec S0 ping -c2 10.0.0.2
+      - cmd: docker exec S0 ping -c2 10.0.0.1
+      - cmd: docker exec S0 ping -c2 10.1.0.2
+      - cmd: docker exec S0 ping -c2 10.1.0.1
+      - cmd: docker exec C0 ping -c2 192.168.0.100
+      - cmd: docker exec C0 ping -c2 192.168.0.10
+      - cmd: docker exec C0 ping -c2 192.168.0.11

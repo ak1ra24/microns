@@ -310,4 +310,8 @@ node_config:
 
 test:
   - cmds:
-        - cmd: docker exec C0 ping -c2 10.4.0.2
+        - cmd: docker exec R0 ping -c2 10.255.0.1
+        - cmd: docker exec R0 ping -c2 10.255.0.2
+        - cmd: docker exec Spine01 ping -c2 10.255.0.11
+        - cmd: docker exec Spine02 ping -c2 10.255.0.12
+        - cmd: docker exec VM01 ping -c2 192.168.200.20

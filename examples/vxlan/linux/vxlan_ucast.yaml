@@ -1,0 +1,188 @@
+nodes:
+  - name: R1
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: bridge
+          peernode: BB_SW
+        - inf: net1
+          type: direct
+          peernode: C1
+          peerinf: net0
+        - inf: net2
+          type: direct
+          peernode: C2
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: R2
+    image: akiranet24/frr:1.0
+    interfaces:
+        - inf: net0
+          type: bridge
+          peernode: BB_SW
+        - inf: net1
+          type: direct
+          peernode: C3
+          peerinf: net0
+        - inf: net2
+          type: direct
+          peernode: C4
+          peerinf: net0
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C1
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R1
+          peerinf: net1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C2
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R1
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C3
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R2
+          peerinf: net1
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+  - name: C4
+    image: akiranet24/ubuntu:18.10
+    interfaces:
+        - inf: net0
+          type: direct
+          peernode: R2
+          peerinf: net2
+    sysctls:
+        - sysctl: net.ipv4.ip_forward=1
+        - sysctl: net.ipv4.conf.all.rp_filter=0
+        - sysctl: net.ipv4.conf.lo.rp_filter=0
+        - sysctl: net.ipv6.conf.all.disable_ipv6=0
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.forwarding=1
+        - sysctl: net.ipv6.conf.all.seg6_enabled=1
+        - sysctl: net.ipv6.conf.default.seg6_enabled=1
+switches:
+    - name: BB_SW
+      interfaces:
+          - name: net0
+            type: container
+            peernode: R1
+          - name: net0
+            type: container
+            peernode: R2
+
+node_config:
+  - name: R1
+    cmds:
+        - cmd: ip link set net0 address 52:54:00:aa:01:00
+        - cmd: ip link set net1 address 52:54:00:aa:01:01
+        - cmd: ip link set net2 address 52:54:00:aa:01:02
+        - cmd: ip addr add 10.255.0.1/32 dev lo
+        - cmd: ip addr add 10.0.0.1/24 dev net0
+        - cmd: ip addr add 192.168.1.1/24 dev net1
+        - cmd: ip addr add 172.0.1.1/24 dev net2
+        - cmd: ip route add default via 10.0.0.2
+
+  - name: R2
+    cmds:
+        - cmd: ip link set net0 address 52:54:00:aa:02:00
+        - cmd: ip link set net1 address 52:54:00:aa:02:01
+        - cmd: ip link set net2 address 52:54:00:aa:02:02
+        - cmd: ip addr add 10.255.0.2/32 dev lo
+        - cmd: ip addr add 10.0.0.2/24 dev net0
+        - cmd: ip addr add 192.168.2.2/24 dev net1
+        - cmd: ip addr add 172.0.2.2/24 dev net2
+        - cmd: ip route add default via 10.0.0.1
+
+  - name: C1
+    cmds:
+        - cmd: ip link set net0 address 52:54:00:bb:01:00
+        - cmd: ip addr add 10.255.0.3/32 dev lo
+        - cmd: ip addr add 192.168.1.3/24 dev net0
+        - cmd: ip route add default via 192.168.1.1
+        - cmd: ip link add vxlan100 type vxlan id 100 dstport 4789 remote 192.168.2.5 dev net0
+        - cmd: ip link set dev vxlan100 up
+        - cmd: ip addr add 192.168.100.10/24 dev vxlan100
+  - name: C2
+    cmds:
+        - cmd: ip link set net0 address 52:54:00:bb:02:00
+        - cmd: ip addr add 10.255.0.4/32 dev lo
+        - cmd: ip addr add 172.0.1.4/24 dev net0
+        - cmd: ip route add default via 172.0.1.1
+        - cmd: ip link add vxlan200 type vxlan id 200 dstport 4789 remote 172.0.2.6 dev net0
+        - cmd: ip link set dev vxlan200 up
+        - cmd: ip addr add 192.168.200.20/24 dev vxlan200
+  - name: C3
+    cmds:
+        - cmd: ip link set net0 address 52:54:00:bb:03:00
+        - cmd: ip addr add 10.255.0.5/32 dev lo
+        - cmd: ip addr add 192.168.2.5/24 dev net0
+        - cmd: ip route add default via 192.168.2.2
+        - cmd: ip link add vxlan100 type vxlan id 100 dstport 4789 remote 192.168.1.3 dev net0
+        - cmd: ip link set dev vxlan100 up
+        - cmd: ip addr add 192.168.100.30/24 dev vxlan100
+  - name: C4
+    cmds:
+        - cmd: ip link set net0 address 52:54:00:bb:04:00
+        - cmd: ip addr add 10.255.0.6/32 dev lo
+        - cmd: ip addr add 172.0.2.6/24 dev net0
+        - cmd: ip route add default via 172.0.2.2
+        - cmd: ip link add vxlan200 type vxlan id 200 dstport 4789 remote 172.0.1.4 dev net0
+        - cmd: ip link set dev vxlan200 up
+        - cmd: ip addr add 192.168.200.40/24 dev vxlan200
+
+test:
+  - cmds:
+        - cmd: docker exec R1 ping -c2 10.0.0.2
+        - cmd: docker exec R1 ping -c2 192.168.1.3
+        - cmd: docker exec R1 ping -c2 172.0.1.4
+        - cmd: docker exec R1 ping -c2 192.168.2.5
+        - cmd: docker exec R1 ping -c2 172.0.2.6
+        - cmd: docker exec C1 ping -c2 192.168.100.30
+        - cmd: docker exec C2 ping -c2 192.168.200.40
