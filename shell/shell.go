@@ -21,7 +21,7 @@ fi
 	var CheckandRuncmd string
 
 	if len(node.Sysctls) != 0 {
-		runcmd = fmt.Sprintf("docker run -td --rm --net=none --privileged --name %s --hostname %s", node.Name, node.Name)
+		runcmd = fmt.Sprintf("docker run -td --net=none --privileged --name %s --hostname %s", node.Name, node.Name)
 		for _, sysctl := range node.Sysctls {
 			sysctlconf := fmt.Sprintf(" --sysctl %s", sysctl.Sysctl)
 			runcmd += sysctlconf
@@ -35,7 +35,7 @@ fi
 		runcmd += fmt.Sprintf(" %s", node.Image)
 		CheckandRuncmd = fmt.Sprintf(checkContainer, node.Name, node.Name, runcmd)
 	} else {
-		runcmd = fmt.Sprintf("docker run -td --rm --net=none --privileged --name %s --hostname %s", node.Name, node.Name)
+		runcmd = fmt.Sprintf("docker run -td --net=none --privileged --name %s --hostname %s", node.Name, node.Name)
 		if len(node.Volumes) != 0 {
 			for _, volume := range node.Volumes {
 				volumeconf := fmt.Sprintf(" -v %s:%s", volume.HostVolume, volume.ContainerVolume)

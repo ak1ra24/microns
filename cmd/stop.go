@@ -57,6 +57,8 @@ var stopCmd = &cobra.Command{
 
 		} else if shellon {
 			for _, node := range nodes {
+				delNscmd := shell.NsDel(node.Name)
+				fmt.Println(delNscmd)
 				stopDockercmd := shell.DockerStop(node.Name)
 				fmt.Println(stopDockercmd)
 			}
