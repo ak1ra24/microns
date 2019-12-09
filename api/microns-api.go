@@ -61,13 +61,15 @@ func (c *Container) CreateContainerPort(imageName string, hostName string, cport
 
 	var port nat.Port
 	var portbindings []nat.PortBinding
+	var portMap nat.PortMap
 	portbindings = append(portbindings, nat.PortBinding{HostPort: hport})
 	fmt.Println("[Port Binding] Container Port: ", cport, "Host Port: ", hport)
 	port, err = nat.NewPort("tcp", cport)
 	if err != nil {
 		return err
 	}
-	portMap := nat.PortMap{port: portbindings}
+	// portMap := nat.PortMap{port: portbindings}
+	portMap[port] = portbindings
 
 	containerBindFile := "/temp"
 
