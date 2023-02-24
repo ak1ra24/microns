@@ -14,6 +14,6 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.6.1
 	github.com/vishvananda/netlink v1.0.0
-	golang.org/x/net v0.0.0-20191207000613-e7e4b65ae663
+	golang.org/x/net v0.7.0
 	gopkg.in/yaml.v2 v2.2.7
 )
